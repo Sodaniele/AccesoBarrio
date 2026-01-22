@@ -1,59 +1,62 @@
 const express = require('express');
-const fs = require('fs');
+const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
-const PORT = 3000;
 
+// 1. Configuración de middlewares
 app.use(express.json());
-
-// Servir archivos estáticos (CSS, JS, Imágenes)
 app.use(express.static(__dirname));
 
-const ARCHIVO_DB = 'base_de_datos.json';
+// 2. Conexión a MongoDB Atlas (Usando la variable que pusimos en Render)
+const mongoURI = process.env.MONGO_URI; 
 
-// --- Funciones de Base de Datos ---
-function cargarDatos() {
-    if (fs.existsSync(ARCHIVO_DB)) {
-        try {
-            const datosRaw = fs.readFileSync(ARCHIVO_DB, 'utf-8');
-            return JSON.parse(datosRaw);
-        } catch (e) {
-            console.error("Error al leer el JSON, devolviendo lista vacía");
-            return [];
-        }
-    } else {
-        return [];
+mongoose.connect(mongoURI)
+    .then(() => console.log("✅ Conectado a MongoDB Atlas"))
+    .catch(err => console.error("❌ Error de conexión a Mongo:", err));
+
+// 3. Definir el esquema de los sitios (Cómo se guardan los datos)
+const SitioSchema = new mongoose.Schema({
+    nombre: String,
+    descripcion: String,
+    caracteristicas: [String],
+    lat: Number,
+    lng: Number,
+    puntuacion: Number,
+    reportes: Number
+});
+
+const Sitio = mongoose.model('Sitio', SitioSchema);
+
+// 4. RUTAS API
+
+// Obtener todos los sitios
+app.get('/api/sitios', async (req, res) => {
+    try {
+        const sitios = await Sitio.find();
+        res.json(sitios);
+    } catch (err) {
+        res.status(500).json({ error: "Error al obtener sitios" });
     }
-}
+});
 
-function guardarDatos(datos) {
-    fs.writeFileSync(ARCHIVO_DB, JSON.stringify(datos, null, 2));
-}
-
-let baseDeDatos = cargarDatos();
-
-// --- RUTAS ---
+// Guardar un nuevo sitio
+app.post('/api/sitios', async (req, res) => {
+    try {
+        const nuevoSitio = new Sitio(req.body);
+        await nuevoSitio.save();
+        res.status(201).json({ mensaje: "¡Sitio guardado con éxito! 🎉" });
+    } catch (err) {
+        res.status(500).json({ error: "Error al guardar sitio" });
+    }
+});
 
 // Página principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Cambiado de /api/locales a /api/sitios para que coincida con tu app.js
-app.get('/api/sitios', (req, res) => {
-    res.json(baseDeDatos);
-});
-
-app.post('/api/sitios', (req, res) => {
-    const nuevoSitio = req.body;
-    baseDeDatos.push(nuevoSitio);
-    guardarDatos(baseDeDatos);
-    res.status(201).json({ mensaje: "¡Sitio guardado con éxito! 🎉" });
-});
-
-// Esto permite que Render elija el puerto automáticamente
+// 5. Encendido del servidor (CORREGIDO)
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`Servidor funcionando en el puerto ${PORT}`);
+    console.log(`🚀 Servidor funcionando en el puerto ${PORT}`);
 });
