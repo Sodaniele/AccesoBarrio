@@ -14,7 +14,7 @@ mongoose.connect(mongoURI)
     .then(() => console.log("✅ Conectado a MongoDB Atlas"))
     .catch(err => console.error("❌ Error de conexión a Mongo:", err));
 
-// 3. Definir el esquema de los sitios
+// 3. Definir el esquema de los sitios (Actualizado con verificaciones)
 const SitioSchema = new mongoose.Schema({
     nombre: String,
     descripcion: String,
@@ -22,7 +22,8 @@ const SitioSchema = new mongoose.Schema({
     lat: Number,
     lng: Number,
     puntuacion: { type: Number, default: 5 },
-    reportes: { type: Number, default: 0 }
+    reportes: { type: Number, default: 0 },
+    verificaciones: { type: Number, default: 0 } // ✨ Nueva propiedad para el sistema comunitario
 });
 
 const Sitio = mongoose.model('Sitio', SitioSchema);
@@ -51,7 +52,6 @@ app.post('/api/sitios', async (req, res) => {
 });
 
 // --- ACTUALIZAR UN SITIO EXISTENTE (PUT) ---
-// ✨ Nueva ruta para la función de editar
 app.put('/api/sitios/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -65,21 +65,31 @@ app.put('/api/sitios/:id', async (req, res) => {
         
         res.json({ mensaje: "Sitio actualizado correctamente ✅", sitio: sitioActualizado });
     } catch (err) {
-        console.error(err);
         res.status(500).json({ error: "Error al actualizar el sitio" });
     }
 });
 
 // --- REPORTAR UN SITIO (POST) ---
-// ✨ Nueva ruta para el botón de la advertencia ⚠️
 app.post('/api/sitios/:id/reportar', async (req, res) => {
     try {
         const { id } = req.params;
-        // Buscamos el sitio y sumamos 1 al contador de reportes
         await Sitio.findByIdAndUpdate(id, { $inc: { reportes: 1 } });
-        res.json({ mensaje: "Reporte registrado correctamente" });
+        res.json({ mensaje: "Reporte registrado correctamente ⚠️" });
     } catch (err) {
         res.status(500).json({ error: "Error al procesar el reporte" });
+    }
+});
+
+// --- VERIFICAR UN SITIO (POST) ---
+// ✨ Nueva ruta para que la comunidad valide los datos
+app.post('/api/sitios/:id/verificar', async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Incrementamos en 1 el contador de verificaciones
+        await Sitio.findByIdAndUpdate(id, { $inc: { verificaciones: 1 } });
+        res.json({ mensaje: "¡Verificación registrada! ✅" });
+    } catch (err) {
+        res.status(500).json({ error: "Error al registrar verificación" });
     }
 });
 
