@@ -142,7 +142,8 @@ function colocarMarcador(latlng) {
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     if (!calle) return alert("Escribe calle y número");
-    const query = `${calle}, San Nicolás, Buenos Aires, Argentina`;
+    // Ahora buscará exactamente lo que el usuario escriba
+    const query = calle;
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
     try {
         const r = await fetch(url);
