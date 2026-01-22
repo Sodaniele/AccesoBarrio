@@ -1,18 +1,13 @@
 {
   "name": "AccesoBarrio",
-  "short_name": "AccesoBarrio",
+  "short_name": "AccesoB",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#667eea",
+  "background_color": "#006D77",
+  "theme_color": "#006D77",
   "icons": [
     {
-      "src": "icon.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/751/751621.png",
       "sizes": "512x512",
       "type": "image/png"
     }
