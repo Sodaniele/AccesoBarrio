@@ -157,36 +157,72 @@ async function buscarDireccion() {
 function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
 
 async function guardarSitio() {
-    const nombre = document.getElementById('nombre').value;
-    const desc = document.getElementById('descripcion').value;
+    console.log("Iniciando proceso de guardado...");
+
+    // 1. Obtener los elementos del formulario
+    const nombreInput = document.getElementById('nombre');
+    const descInput = document.getElementById('descripcion');
+    
+    // Verificamos que los inputs existan en el HTML para evitar errores
+    if (!nombreInput || !descInput) {
+        console.error("Error: No se encontraron los campos 'nombre' o 'descripcion' en el HTML.");
+        return;
+    }
+
+    const nombre = nombreInput.value;
+    const desc = descInput.value;
     const checks = document.querySelectorAll('.cat-check:checked');
     const caracteristicas = Array.from(checks).map(c => c.value);
 
-    if (!nombre || !marcadorSel) {
-        return Swal.fire({ icon: 'warning', title: 'Faltan datos', text: 'Nombre y ubicación son obligatorios', confirmButtonColor: '#FF7E6B' });
+    // 2. Validaciones básicas
+    if (!nombre.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Falta el nombre', text: 'El nombre del lugar es obligatorio.', confirmButtonColor: '#FF7E6B' });
     }
 
-    const nuevo = {
-        nombre, descripcion: desc, caracteristicas,
-        lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng,
-        puntuacion: 5, reportes: 0
+    if (!marcadorSel) {
+        return Swal.fire({ icon: 'warning', title: 'Falta ubicación', text: 'Por favor, marca el sitio en el mapa.', confirmButtonColor: '#FF7E6B' });
+    }
+
+    // 3. Creamos el objeto con los datos
+    const nuevoSitio = {
+        nombre: nombre,
+        descripcion: desc,
+        caracteristicas: caracteristicas,
+        lat: marcadorSel.getLatLng().lat,
+        lng: marcadorSel.getLatLng().lng,
+        puntuacion: 5,
+        reportes: 0
     };
 
-    const r = await fetch('/api/sitios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevo)
-    });
+    try {
+        // 4. AQUÍ DEFINIMOS "r" (La respuesta del servidor)
+        const r = await fetch('/api/sitios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoSitio)
+        });
 
-    if (r.ok) {
+        // 5. Ahora que "r" existe, ya podemos usar r.ok
+        if (r.ok) {
+            Swal.fire({
+                title: '¡Guardado!',
+                text: 'Gracias por colaborar con AccesoBarrio.',
+                icon: 'success',
+                confirmButtonColor: '#006D77'
+            }).then(() => {
+                location.reload(); 
+            });
+        } else {
+            throw new Error("Error en el servidor");
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
         Swal.fire({
-            title: '¡Guardado!',
-            text: 'Gracias por colaborar con la accesibilidad.',
-            icon: 'success',
-            confirmButtonColor: '#006D77'
-        }).then(() => { location.reload(); });
-    } else {
-        Swal.fire({ title: 'Error', text: 'No se pudo guardar.', icon: 'error', confirmButtonColor: '#FF7E6B' });
+            title: 'Error de red',
+            text: 'No se pudo guardar. Verifica que el servidor esté funcionando.',
+            icon: 'error',
+            confirmButtonColor: '#FF7E6B'
+        });
     }
 }
 
