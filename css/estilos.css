@@ -184,3 +184,7 @@ body.alto-contraste .boton-cat, body.alto-contraste .contenido-modal {
     background: #222 !important; border: 2px solid #fff; 
 }
 body.fuente-legible { font-family: Arial, sans-serif !important; }
+/* Asegura que las alertas de SweetAlert estén siempre por encima de todo */
+.swal2-container {
+    z-index: 99999 !important;
+}
