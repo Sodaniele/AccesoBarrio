@@ -1,42 +1,49 @@
-# AccesoBarrio 🌍 ♿
+# AccesoBarrio 🌍♿
 
-**AccesoBarrio** es una aplicación web colaborativa diseñada para mejorar la movilidad urbana en San Nicolás. Permite a los usuarios registrar y consultar puntos de accesibilidad en un mapa interactivo en tiempo real.
+**De la Necesidad Personal a la Solución Comunitaria.**
 
-## 🚀 Características
-- 📍 **Mapeo Interactivo:** Visualización de puntos de accesibilidad mediante Leaflet.js.
-- 📝 **Registro Colaborativo:** Los usuarios pueden añadir nuevos sitios (rampas, baños adaptados, espacios calmos).
-- 📱 **Mobile First:** Diseño optimizado para su uso en dispositivos móviles como una Web App.
-- ☁️ **Cloud Database:** Almacenamiento seguro en la nube con MongoDB Atlas.
+AccesoBarrio es una plataforma colaborativa (Web App Full-Stack) diseñada para mapear la accesibilidad urbana en tiempo real. Este proyecto transforma al ciudadano en un "Agente de Cambio", permitiendo registrar y consultar infraestructuras inclusivas (rampas, baños adaptados, espacios de calma) para garantizar la autonomía de las personas con movilidad reducida.
 
-## 🛠️ Stack Tecnológico
-- **Frontend:** HTML5, CSS3 (Custom Variables & Grid), JavaScript (Vanilla ES6).
-- **Backend:** Node.js & Express.
-- **Base de Datos:** MongoDB (Mongoose ODM).
-- **Mapas:** Leaflet.js API.
-- **Despliegue:** Render.com.
+---
 
-## ⚙️ Instalación y Configuración
-Si deseas ejecutar este proyecto localmente:
+## 💡 El Corazón del Proyecto
+Este software no nace de un ejercicio académico, sino de una misión de vida. Mi mayor maestra en resiliencia ha sido **mi madre**, usuaria de silla de ruedas desde hace más de una década. Verla enfrentar barreras invisibles para el resto del mundo me impulsó a crear una herramienta que convierta la frustración de la barrera física en la libertad de la información digital.
 
-1. Clona el repositorio:
-   ```bash
-   git clone [https://github.com/Sodaniele/AccesoBarrio.git](https://github.com/Sodaniele/AccesoBarrio.git)
-Instala las dependencias:
+---
 
-Bash
+## 🚀 Características Técnicas (Stack)
+- **Frontend:** HTML5, CSS3 (Custom Properties), JavaScript Vanilla.
+- **Mapas:** [Leaflet.js](https://leafletjs.com/) (OpenSource Mapping).
+- **Backend:** Node.js con Express.
+- **Base de Datos:** MongoDB Atlas (NoSQL).
+- **Despliegue:** CI/CD mediante GitHub y Render.
 
-npm install
-Configura tu variable de entorno MONGO_URI en un archivo .env.
+---
 
-Inicia el servidor:
+## ♿ Funcionalidades de Accesibilidad
+AccesoBarrio ha sido diseñado bajo los principios de **Diseño Universal** y cumplimiento de las **WCAG**:
+- **Widget de Accesibilidad:** Control de alto contraste, escala de grises y escalado de texto dinámico.
+- **Feedback por Voz:** Módulo de síntesis de voz para navegación multimodal.
+- **UX Inclusiva:** Objetivos táctiles (Touch Targets) de 48px y tipografía de alta legibilidad.
 
-Bash
+---
 
-npm start
-✒️ Autora
-Desarrollado con ❤️ por Sofía Fabiana Daniele como parte de Proyecto25.
+## 🔒 Aviso Legal y Propiedad Intelectual
+**© 2026 Sofía Fabiana Daniele - Todos los derechos reservados.**
 
-© 2026 AccesoBarrio - San Nicolás, Argentina.
-2. Instalar dependencias:
-   ```bash
-   npm install
+Este proyecto y su código fuente están protegidos por las leyes de propiedad intelectual. 
+- **Uso Personal/Educativo:** Se permite la visualización del código con fines de aprendizaje.
+- **Uso Comercial:** Queda estrictamente prohibida la reproducción, distribución o uso comercial de esta idea, diseño o código sin el consentimiento expreso y por escrito de la autora.
+
+*Este proyecto ha sido presentado ante organizaciones de discapacidad en España (Fundación ONCE) y Argentina, contando con registro de autoría previo a su publicación.*
+
+---
+
+## 📬 Contacto
+Si eres una organización, ayuntamiento o desarrollador interesado en colaborar o escalar esta solución, puedes contactarme:
+
+- **LinkedIn:** [Tu Perfil de LinkedIn aquí]
+- **Desarrollado por:** Sofía Fabiana Daniele | **Proyecto25**
+
+---
+"Porque la verdadera accesibilidad no es solo una cuestión de cemento; es una cuestión de libertad."
