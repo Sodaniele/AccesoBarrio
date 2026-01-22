@@ -69,7 +69,7 @@
         <div class="contenido-modal">
             <h2>📍 Registrar Espacio</h2>
             <div class="scroll-form">
-                <input type="text" id="nombre" placeholder="Nombre del lugar (ej: Correo Argentino)">
+                <input type="text" id="nombre" placeholder="Nombre del lugar (ej: Centro Cultural)">
                 <textarea id="descripcion" placeholder="Detalles de accesibilidad..."></textarea>
                 
                 <p class="titulo-seccion">Opciones de Accesibilidad:</p>
@@ -86,7 +86,7 @@
 
                 <p class="titulo-seccion">Escribe la dirección exacta:</p>
                 <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="input-direccion" placeholder="Ej: Sarmiento 120, San Nicolás" style="flex: 1; margin-bottom: 0;">
+                    <input type="text" id="input-direccion" placeholder="Ej: Calle Chile 4, Las Rozas" style="flex: 1; margin-bottom: 0;">
                     <button onclick="buscarDireccion()" style="background: var(--teal); color: white; border: none; border-radius: 15px; padding: 0 15px; cursor: pointer; font-size: 18px;">🔍</button>
                 </div>
 
@@ -116,6 +116,7 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
