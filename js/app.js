@@ -1,5 +1,6 @@
 let mapa, marcadores = [], locales = [], ptoSel = 5;
 let mapaSel, marcadorSel;
+let editandoId = null; // ✨ Variable global para saber si estamos editando o creando
 
 // 1. CARGAR DATOS DESDE MONGODB
 async function cargarSitios() {
@@ -15,7 +16,6 @@ async function cargarSitios() {
 // 2. INICIALIZAR MAPA PRINCIPAL
 function initMap() {
     if (mapa) return;
-    // Centrado inicial (se ajustará al localizar al usuario)
     mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
     mapa.locate({setView: true, maxZoom: 15});
@@ -56,7 +56,10 @@ function mostrarSitios(lista) {
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <h3 style="margin:0; color:#006d77; font-weight:800;">${s.nombre}</h3>
-                <button onclick="reportarSitio('${s._id}')" style="background:none; border:none; cursor:pointer;">⚠️</button>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="prepararEdicion('${s._id}')" style="background:none; border:none; cursor:pointer; font-size:18px;" title="Editar">✏️</button>
+                    <button onclick="reportarSitio('${s._id}')" style="background:none; border:none; cursor:pointer;">⚠️</button>
+                </div>
             </div>
             <p style="color:#666; font-size:14px; margin:10px 0;">${s.descripcion || 'Sin descripción'}</p>
             <div style="display:flex; flex-wrap:wrap; gap:6px;">
@@ -121,6 +124,13 @@ async function cargarResultados(f) {
 
 // 6. FORMULARIO Y DIRECCIÓN
 function abrirFormulario() {
+    // ✨ Reseteamos el estado a "Nuevo Sitio" cada vez que abrimos normal
+    editandoId = null; 
+    document.querySelector('#modal-anadir h2').innerText = "📍 Registrar Espacio";
+    document.getElementById('nombre').value = '';
+    document.getElementById('descripcion').value = '';
+    document.querySelectorAll('.cat-check').forEach(c => c.checked = false);
+
     document.getElementById('modal-anadir').style.display = 'flex';
     if (!mapaSel) {
         mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([40.4167, -3.7033], 14);
@@ -128,6 +138,41 @@ function abrirFormulario() {
         mapaSel.on('click', (e) => { colocarMarcador(e.latlng); });
     }
     setTimeout(() => { mapaSel.invalidateSize(); }, 300);
+}
+
+// ✨ NUEVA FUNCIÓN: Cargar datos para editar
+function prepararEdicion(id) {
+    const sitio = locales.find(l => l._id === id);
+    if (!sitio) return;
+
+    editandoId = id; // Guardamos el ID que estamos editando
+    
+    // Abrimos el modal (sin resetear datos)
+    document.getElementById('modal-anadir').style.display = 'flex';
+    document.querySelector('#modal-anadir h2').innerText = "✏️ Editar Espacio";
+
+    // Rellenamos los campos con la info vieja
+    document.getElementById('nombre').value = sitio.nombre;
+    document.getElementById('descripcion').value = sitio.descripcion || '';
+    
+    // Marcamos los checkboxes correspondientes
+    const checks = document.querySelectorAll('.cat-check');
+    checks.forEach(ch => {
+        ch.checked = sitio.caracteristicas.includes(ch.value);
+    });
+
+    // Inicializamos o actualizamos el mapa de selección
+    if (!mapaSel) {
+        mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([sitio.lat, sitio.lng], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaSel);
+        mapaSel.on('click', (e) => { colocarMarcador(e.latlng); });
+    }
+
+    setTimeout(() => {
+        mapaSel.invalidateSize();
+        mapaSel.setView([sitio.lat, sitio.lng], 17);
+        colocarMarcador({lat: sitio.lat, lng: sitio.lng});
+    }, 400);
 }
 
 function colocarMarcador(latlng) {
@@ -138,9 +183,7 @@ function colocarMarcador(latlng) {
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     if (!calle) return Swal.fire({ icon: 'info', title: 'Atención', text: 'Escribe calle y número', confirmButtonColor: '#006D77' });
-
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&limit=1`;
-
     try {
         const r = await fetch(url);
         const data = await r.json();
@@ -157,34 +200,24 @@ async function buscarDireccion() {
 function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
 
 async function guardarSitio() {
-    console.log("Iniciando proceso de guardado...");
-
-    // 1. Obtener los elementos del formulario
     const nombreInput = document.getElementById('nombre');
     const descInput = document.getElementById('descripcion');
     
-    // Verificamos que los inputs existan en el HTML para evitar errores
-    if (!nombreInput || !descInput) {
-        console.error("Error: No se encontraron los campos 'nombre' o 'descripcion' en el HTML.");
-        return;
-    }
+    if (!nombreInput || !descInput) return;
 
     const nombre = nombreInput.value;
     const desc = descInput.value;
     const checks = document.querySelectorAll('.cat-check:checked');
     const caracteristicas = Array.from(checks).map(c => c.value);
 
-    // 2. Validaciones básicas
     if (!nombre.trim()) {
         return Swal.fire({ icon: 'warning', title: 'Falta el nombre', text: 'El nombre del lugar es obligatorio.', confirmButtonColor: '#FF7E6B' });
     }
-
     if (!marcadorSel) {
         return Swal.fire({ icon: 'warning', title: 'Falta ubicación', text: 'Por favor, marca el sitio en el mapa.', confirmButtonColor: '#FF7E6B' });
     }
 
-    // 3. Creamos el objeto con los datos
-    const nuevoSitio = {
+    const datosSitio = {
         nombre: nombre,
         descripcion: desc,
         caracteristicas: caracteristicas,
@@ -195,38 +228,32 @@ async function guardarSitio() {
     };
 
     try {
-        // 4. AQUÍ DEFINIMOS "r" (La respuesta del servidor)
-        const r = await fetch('/api/sitios', {
-            method: 'POST',
+        // ✨ LÓGICA DUAL: Si hay editandoId usamos PUT, si no POST
+        const url = editandoId ? `/api/sitios/${editandoId}` : '/api/sitios';
+        const metodo = editandoId ? 'PUT' : 'POST';
+
+        const r = await fetch(url, {
+            method: metodo,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoSitio)
+            body: JSON.stringify(datosSitio)
         });
 
-        // 5. Ahora que "r" existe, ya podemos usar r.ok
         if (r.ok) {
-            // ✨ PRIMERO: Cerramos el modal para que no estorbe
             cerrarModal(); 
-
-            // ✨ SEGUNDO: Mostramos la alerta linda
             Swal.fire({
-                title: '¡Guardado!',
+                title: editandoId ? '¡Actualizado!' : '¡Guardado!',
                 text: 'Gracias por colaborar con AccesoBarrio.',
                 icon: 'success',
                 confirmButtonColor: '#006D77'
             }).then(() => {
+                editandoId = null;
                 location.reload(); 
             });
         } else {
             throw new Error("Error en el servidor");
         }
     } catch (error) {
-        console.error("Error en la petición:", error);
-        Swal.fire({
-            title: 'Error de red',
-            text: 'No se pudo guardar. Verifica que el servidor esté funcionando.',
-            icon: 'error',
-            confirmButtonColor: '#FF7E6B'
-        });
+        Swal.fire({ title: 'Error', text: 'No se pudo procesar la solicitud.', icon: 'error', confirmButtonColor: '#FF7E6B' });
     }
 }
 
@@ -249,14 +276,13 @@ async function reportarSitio(id) {
         confirmButtonText: 'Sí, reportar',
         cancelButtonText: 'Cancelar'
     });
-
     if (result.isConfirmed) {
         await fetch(`/api/sitios/${id}/reportar`, { method: 'POST' });
         Swal.fire({ title: 'Enviado', text: 'Gracias por tu reporte.', icon: 'success', confirmButtonColor: '#006D77' });
     }
 }
 
-// 8. ACCESIBILIDAD (Corregida para ROOT/REM)
+// 8. ACCESIBILIDAD
 function toggleMenuAccesibilidad() {
     document.getElementById('menu-accesibilidad').classList.toggle('menu-oculto');
 }
