@@ -29,6 +29,9 @@ function mostrarSitios(lista) {
     div.innerHTML = '';
 
     lista.forEach(s => {
+        // ✨ REGLA DE PROTECCIÓN: Verificamos si es tu pin especial
+        const esPinProtegido = s.nombre === "Familia Daniele";
+
         const etiquetasPopup = s.caracteristicas ? s.caracteristicas.map(cat => 
             `<span style="background:#e0f2f1; color:#006d77; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px; border:1px solid #b2dfdb; display:inline-block; margin-top:4px; font-weight:700;">${cat}</span>`
         ).join('') : '';
@@ -57,7 +60,7 @@ function mostrarSitios(lista) {
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <h3 style="margin:0; color:#006d77; font-weight:800;">${s.nombre}</h3>
                 <div style="display:flex; gap:10px;">
-                    <button onclick="prepararEdicion('${s._id}')" style="background:none; border:none; cursor:pointer; font-size:18px;" title="Editar">✏️</button>
+                    ${esPinProtegido ? '' : `<button onclick="prepararEdicion('${s._id}')" style="background:none; border:none; cursor:pointer; font-size:18px;" title="Editar">✏️</button>`}
                     <button onclick="reportarSitio('${s._id}')" style="background:none; border:none; cursor:pointer;">⚠️</button>
                 </div>
             </div>
@@ -124,7 +127,6 @@ async function cargarResultados(f) {
 
 // 6. FORMULARIO Y DIRECCIÓN
 function abrirFormulario() {
-    // ✨ Reseteamos el estado a "Nuevo Sitio" cada vez que abrimos normal
     editandoId = null; 
     document.querySelector('#modal-anadir h2').innerText = "📍 Registrar Espacio";
     document.getElementById('nombre').value = '';
@@ -140,28 +142,33 @@ function abrirFormulario() {
     setTimeout(() => { mapaSel.invalidateSize(); }, 300);
 }
 
-// ✨ NUEVA FUNCIÓN: Cargar datos para editar
+// Cargar datos para editar
 function prepararEdicion(id) {
     const sitio = locales.find(l => l._id === id);
     if (!sitio) return;
 
-    editandoId = id; // Guardamos el ID que estamos editando
-    
-    // Abrimos el modal (sin resetear datos)
+    // ✨ BLOQUEO EXTRA: Seguridad por si intentan forzar la edición
+    if (sitio.nombre === "Familia Daniele") {
+        return Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'Este es un espacio protegido y no puede ser editado.',
+            confirmButtonColor: '#FF7E6B'
+        });
+    }
+
+    editandoId = id; 
     document.getElementById('modal-anadir').style.display = 'flex';
     document.querySelector('#modal-anadir h2').innerText = "✏️ Editar Espacio";
 
-    // Rellenamos los campos con la info vieja
     document.getElementById('nombre').value = sitio.nombre;
     document.getElementById('descripcion').value = sitio.descripcion || '';
     
-    // Marcamos los checkboxes correspondientes
     const checks = document.querySelectorAll('.cat-check');
     checks.forEach(ch => {
         ch.checked = sitio.caracteristicas.includes(ch.value);
     });
 
-    // Inicializamos o actualizamos el mapa de selección
     if (!mapaSel) {
         mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([sitio.lat, sitio.lng], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaSel);
@@ -228,7 +235,6 @@ async function guardarSitio() {
     };
 
     try {
-        // ✨ LÓGICA DUAL: Si hay editandoId usamos PUT, si no POST
         const url = editandoId ? `/api/sitios/${editandoId}` : '/api/sitios';
         const metodo = editandoId ? 'PUT' : 'POST';
 
