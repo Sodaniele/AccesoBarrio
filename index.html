@@ -99,6 +99,22 @@
         </div>
     </div>
 
+    <div id="accesibilidad-widget">
+        <button id="btn-accesibilidad-flotante" onclick="toggleMenuAccesibilidad()" title="Opciones de accesibilidad">
+            <span style="font-size: 24px;">♿</span>
+        </button>
+
+        <div id="menu-accesibilidad" class="menu-oculto">
+            <h3>Accesibilidad</h3>
+            <button onclick="ajustarTexto(1.1)">➕ Aumentar texto</button>
+            <button onclick="ajustarTexto(0.9)">➖ Disminuir texto</button>
+            <button onclick="toggleFiltro('escala-grises')">🌓 Escala de grises</button>
+            <button onclick="toggleFiltro('alto-contraste')">👁️ Alto contraste</button>
+            <button onclick="toggleFiltro('fuente-legible')">🔤 Fuente legible</button>
+            <button onclick="restablecerAccesibilidad()" class="btn-reset">🔄 Restablecer</button>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/app.js"></script>
 </body>
