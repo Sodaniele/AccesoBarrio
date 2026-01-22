@@ -174,10 +174,10 @@ function cerrarModal() {
 }
 
 async function guardarSitio() {
-    // ... tu código anterior (nombre, desc, checks, etc.) ...
+   
 
     if (r.ok) {
-        // ✨ REEMPLAZO DE LA ALERTA FEA ✨
+        
         Swal.fire({
             title: '¡Guardado con éxito!',
             text: 'Gracias por ayudar a mapear la accesibilidad.',
