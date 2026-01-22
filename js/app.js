@@ -9,14 +9,12 @@ async function cargarSitios() {
         locales = await r.json();
         console.log("Datos cargados correctamente.");
         
-        // ✨ OCULTAR EL CARGADOR (Spinner) cuando los datos llegan
         const loader = document.getElementById('loading-overlay');
         if (loader) {
             loader.style.display = 'none';
         }
     } catch(e) {
         console.error("Error al cargar de MongoDB", e);
-        // Si hay error, ocultamos el cargador igual para que la web no se quede bloqueada
         const loader = document.getElementById('loading-overlay');
         if (loader) loader.style.display = 'none';
     }
@@ -35,7 +33,7 @@ const iconos = {
     movilidad: crearIcono('♿', '#006D77'),
     calma: crearIcono('🧠', '#83C5BE'),
     visual: crearIcono('👁️', '#E29578'),
-    especial: crearIcono('❤️', '#FFD700'), // Icono dorado para Familia Daniele
+    especial: crearIcono('❤️', '#FFD700'), 
     default: crearIcono('📍', '#008080')
 };
 
@@ -56,18 +54,14 @@ function mostrarSitios(lista) {
 
     lista.forEach(s => {
         const esPinProtegido = s.nombre === "Familia Daniele";
-        
-        // Decidir icono
         let iconoAUsar = iconos.default;
         if (esPinProtegido) iconoAUsar = iconos.especial;
         else if (s.caracteristicas.includes('Rampa')) iconoAUsar = iconos.movilidad;
         else if (s.caracteristicas.includes('Calma')) iconoAUsar = iconos.calma;
         else if (s.caracteristicas.includes('Braille')) iconoAUsar = iconos.visual;
 
-        // Verificaciones
         const verifTexto = s.verificaciones > 0 ? `<p style="color: #2D6A4F; font-size: 11px; font-weight: 700; margin: 5px 0;">✅ ${s.verificaciones} confirmaciones</p>` : '';
 
-        // Marcador Mapa
         const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`
             <div style="font-family: 'Poppins'; min-width: 160px;">
                 <h3 style="margin:0; color:#006d77; font-weight:800;">${s.nombre}</h3>
@@ -78,7 +72,6 @@ function mostrarSitios(lista) {
         `);
         marcadores.push(m);
 
-        // Card Lista
         const card = document.createElement('div');
         card.className = 'item-lista';
         card.innerHTML = `
@@ -98,6 +91,48 @@ function mostrarSitios(lista) {
         `;
         div.appendChild(card);
     });
+}
+
+// ✨ NUEVAS FUNCIONES DE FILTRADO ✨
+
+function abrirModalFiltros() {
+    document.getElementById('modal-filtros').style.display = 'flex';
+}
+
+function cerrarModalFiltros() {
+    document.getElementById('modal-filtros').style.display = 'none';
+}
+
+function aplicarFiltrosMultiples() {
+    // 1. Obtenemos qué checkboxes de filtro están marcados
+    const checks = document.querySelectorAll('.filtro-check:checked');
+    const filtrosSeleccionados = Array.from(checks).map(c => c.value);
+
+    // 2. Si no hay nada marcado, mostramos todo
+    if (filtrosSeleccionados.length === 0) {
+        mostrarSitios(locales);
+    } else {
+        // 3. Filtramos los locales: el sitio debe incluir TODOS los filtros seleccionados
+        const filtrados = locales.filter(sitio => 
+            filtrosSeleccionados.every(f => sitio.caracteristicas.includes(f))
+        );
+        
+        mostrarSitios(filtrados);
+
+        // 4. Si hay resultados, ajustamos el mapa para que se vean todos
+        if (filtrados.length > 0) {
+            const grupo = L.featureGroup(marcadores);
+            mapa.fitBounds(grupo.getBounds().pad(0.1));
+        } else {
+            Swal.fire({
+                title: 'Sin resultados',
+                text: 'No hay sitios que cumplan con todos esos requisitos.',
+                icon: 'info',
+                confirmButtonColor: '#006D77'
+            });
+        }
+    }
+    cerrarModalFiltros();
 }
 
 // 4. VERIFICAR SITIO

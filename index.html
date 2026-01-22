@@ -62,7 +62,10 @@
     <div id="pantalla-resultados">
         <div class="barra-superior-pro">
             <button onclick="location.reload()" class="btn-circular">⬅</button>
-            <button class="btn-lista-pill" onclick="alternarVista()" id="btn-vista">📋 Ver Lista</button>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-lista-pill" onclick="abrirModalFiltros()" style="background: #f0f0f0; color: #333;">⚙️ Filtros</button>
+                <button class="btn-lista-pill" onclick="alternarVista()" id="btn-vista">📋 Ver Lista</button>
+            </div>
         </div>
         
         <div id="contenedor-mapa-pro">
@@ -75,6 +78,27 @@
 
         <div class="firma-autor">
             <p>© 2026 Sofía Fabiana Daniele | by Proyecto25</p>
+        </div>
+    </div>
+
+    <div id="modal-filtros" class="modal-personalizado">
+        <div class="contenido-modal">
+            <h2>⚙️ Filtrar por requisitos</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Muestra solo los sitios que cumplan con todo lo marcado:</p>
+            
+            <div class="grid-checks-pro" id="contenedor-filtros-checks">
+                <label><input type="checkbox" class="filtro-check" value="Rampa"> ♿ Rampa</label>
+                <label><input type="checkbox" class="filtro-check" value="Baño"> 🚻 Baño</label>
+                <label><input type="checkbox" class="filtro-check" value="Calma"> 🧠 Calma</label>
+                <label><input type="checkbox" class="filtro-check" value="Braille"> 👁️ Braille/QR</label>
+                <label><input type="checkbox" class="filtro-check" value="Pictogramas"> 🧩 Pictos</label>
+                <label><input type="checkbox" class="filtro-check" value="LSA"> 👋 LSA</label>
+                <label><input type="checkbox" class="filtro-check" value="Podotactil"> 👣 Piso</label>
+                <label><input type="checkbox" class="filtro-check" value="Aro"> 👂 Aro Mag.</label>
+            </div>
+
+            <button class="btn-principal" onclick="aplicarFiltrosMultiples()">Aplicar Filtros</button>
+            <button class="btn-secundario" onclick="cerrarModalFiltros()">Cancelar</button>
         </div>
     </div>
 
