@@ -1,9 +1,10 @@
 {
   "name": "AccesoBarrio",
   "short_name": "AccesoB",
+  "description": "App colaborativa de accesibilidad",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#006D77",
+  "background_color": "#ffffff",
   "theme_color": "#006D77",
   "icons": [
     {

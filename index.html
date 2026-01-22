@@ -4,15 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AccesoBarrio 🌍</title>
+
+    <meta property="og:title" content="AccesoBarrio 🌍 - Mapeando la Inclusión" />
+    <meta property="og:description" content="Una Web App colaborativa diseñada para mejorar la autonomía de personas con movilidad reducida. ¡Súmate al cambio!" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" /> 
+    <meta property="og:url" content="https://tu-app-en-render.com" />
+    <meta property="og:type" content="website" />
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23008080'/%3E%3Cpath fill='%23fff' d='M20.5 6c-2.61.7-5.67 1-8.5 1s-5.89-.3-8.5-1L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 2 2z'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23008080'/%3E%3Cpath fill='%23fff' d='M20.5 6c-2.61.7-5.67 1-8.5 1s-5.89-.3-8.5-1L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 2 2z'/%3E%3C/svg%3E">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
     <link rel="manifest" href="/manifest.json">
 </head>
 <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; font-weight: 600; color: #006D77; font-family: 'Poppins';">Cargando mapa inclusivo...</p>
+    </div>
 
     <button id="btn-voz" onclick="toggleVoz()">🔇</button>
 
@@ -29,7 +41,7 @@
             <button class="boton-cat cat-movilidad" onclick="cargarResultados('Rampa')">
                 <span class="emoji">♿</span><span class="txt">Movilidad</span>
             </button>
-            <button class="boton-cat cat-calma" onclick="cargarResultados('Calmado')">
+            <button class="boton-cat cat-calma" onclick="cargarResultados('Calma')">
                 <span class="emoji">🧠</span><span class="txt">Calma</span>
             </button>
             <button class="boton-cat cat-visual" onclick="cargarResultados('Braille')">

@@ -2,9 +2,40 @@
     --coral: #FF7E6B;
     --teal: #006D77;
     --bg: #FFF9F5;
+    --teal-light: #e0f2f1;
 }
 
-/* 📱 AJUSTES GLOBALES RESPONSIVE Y SCROLL */
+/* ✨ PANTALLA DE CARGA (Loader) ✨ */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100001; /* Por encima de TODO */
+    font-family: 'Poppins', sans-serif;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid var(--teal-light);
+    border-top: 6px solid var(--teal);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 📱 AJUSTES GLOBALES */
 body { 
     font-family: 'Poppins', sans-serif; 
     margin: 0; 
@@ -57,6 +88,7 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 }
 .boton-cat .emoji { font-size: 50px; }
 .boton-cat .txt { font-weight: 700; color: var(--teal); font-size: 16px; }
+
 .boton-anadir-home {
     margin-top: 30px; background: var(--coral); color: white; border: none;
     padding: 15px 35px; border-radius: 50px; font-weight: 700; font-size: 18px;
@@ -66,7 +98,7 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 /* 📝 MODAL Y FORMULARIO */
 #modal-anadir {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 109, 119, 0.3); backdrop-filter: blur(8px); z-index: 99999;
+    background: rgba(0, 109, 119, 0.3); backdrop-filter: blur(8px); z-index: 9999;
     align-items: center; justify-content: center;
     padding: 20px; box-sizing: border-box;
     overflow-y: auto;
@@ -84,6 +116,7 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
     cursor: pointer; box-shadow: 0 8px 20px rgba(255,126,107,0.3);
     margin-top: 15px; transition: 0.2s;
 }
+
 .btn-secundario {
     width: 100%; background: transparent; border: 2px solid #eee; color: #888;
     padding: 14px; border-radius: 18px; font-weight: 600; font-size: 14px;
@@ -101,14 +134,27 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
 #contenedor-mapa-pro { position: relative; flex: 1; display: flex; flex-direction: column; }
 #mapa { flex: 1; width: 100%; }
 .buscador-mapa-flotante { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 85%; max-width: 320px; background: white; border-radius: 25px; padding: 10px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+
 #vista-lista { flex: 1; overflow-y: auto; padding: 20px; display: none; background: #fdfdfd; }
 .item-lista { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; border: 1px solid #eee; border-left: 6px solid var(--teal); }
+
+/* ✨ ETIQUETAS DE ACCESIBILIDAD ✨ */
+.tag-accesibilidad {
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #b2dfdb;
+    display: inline-block;
+}
 
 /* FIRMA */
 .firma-autor { text-align: center; padding: 20px 10px; margin-top: 20px; width: 100%; }
 .firma-autor p { font-size: 11px !important; color: #999 !important; letter-spacing: 0.5px; font-weight: 600; margin: 0; text-transform: uppercase; }
 
-
+/* WIDGET ACCESIBILIDAD */
 #btn-accesibilidad-flotante {
     position: fixed;
     bottom: 20px;
@@ -176,7 +222,7 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
     justify-content: center;
 }
 
-/* --- CLASES DE ESTADO (Se activan con JS) --- */
+/* --- CLASES DE ESTADO --- */
 body.escala-grises { filter: grayscale(100%); }
 body.alto-contraste { background: #000 !important; color: #fff !important; }
 body.alto-contraste h1, body.alto-contraste p { color: #fff !important; }
@@ -184,7 +230,8 @@ body.alto-contraste .boton-cat, body.alto-contraste .contenido-modal {
     background: #222 !important; border: 2px solid #fff; 
 }
 body.fuente-legible { font-family: Arial, sans-serif !important; }
-/* Asegura que las alertas de SweetAlert estén siempre por encima de todo */
+
+/* Prioridad para SweetAlert */
 .swal2-container {
-    z-index: 99999 !important;
+    z-index: 100002 !important;
 }
