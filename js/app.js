@@ -177,19 +177,16 @@ async function guardarSitio() {
    
 
     if (r.ok) {
-        
-        Swal.fire({
-            title: '¡Guardado con éxito!',
-            text: 'Gracias por ayudar a mapear la accesibilidad.',
-            icon: 'success',
-            confirmButtonText: 'Genial',
-            confirmButtonColor: '#006D77', // Tu color Teal
-            borderRadius: '20px',
-            fontFamily: 'Poppins'
-        }).then((result) => {
-            // Cuando el usuario haga clic en el botón, se recarga la página
-            location.reload();
-        });
+    Swal.fire({
+        title: '¡Guardado!',
+        text: 'El sitio se ha registrado correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#006D77', // Tu color Teal
+        confirmButtonText: 'Genial'
+    }).then(() => {
+        location.reload();
+    });
+
     } else {
         Swal.fire({
             title: 'Ups...',
