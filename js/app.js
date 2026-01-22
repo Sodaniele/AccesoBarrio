@@ -32,7 +32,6 @@ function mostrarSitios(lista) {
             `<span style="background:#e0f2f1; color:#006d77; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px; border:1px solid #b2dfdb; display:inline-block; margin-top:4px; font-weight:700;">${cat}</span>`
         ).join('') : '';
 
-        // ✨ CORREGIDO: Enlace de Google Maps con la sintaxis correcta ${s.lat}
         const contenidoPopup = `
             <div style="font-family: 'Poppins', sans-serif; min-width: 160px; padding: 5px;">
                 <h3 style="margin:0; color:#006d77; font-size:16px; font-weight:800;">${s.nombre}</h3>
@@ -40,10 +39,10 @@ function mostrarSitios(lista) {
                 <div style="display:flex; flex-wrap:wrap; margin-bottom:10px;">
                     ${etiquetasPopup}
                 </div>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" 
+                <a href="https://www.google.com/maps?q=${s.lat},${s.lng}" 
                    target="_blank" 
                    style="display:block; background:#FF7E6B; color:white; text-align:center; padding:10px; border-radius:12px; text-decoration:none; font-size:12px; font-weight:700; box-shadow: 0 4px 10px rgba(255,126,107,0.3);">
-                   🚗 Cómo llegar
+                    🚗 Cómo llegar
                 </a>
             </div>
         `;
@@ -60,7 +59,7 @@ function mostrarSitios(lista) {
             </div>
             <p style="color:#666; font-size:14px; margin:10px 0;">${s.descripcion || 'Sin descripción'}</p>
             <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                ${s.caracteristicas ? s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('') : ''}
+                ${s.caracteristicas ? s.caracteristicas.map(cat => `<span class="tag-accesibilidad" style="background:#e0f2f1; padding:4px 8px; border-radius:8px; font-size:11px;">${cat}</span>`).join('') : ''}
             </div>
         `;
         div.appendChild(card);
@@ -194,6 +193,48 @@ async function reportarSitio(id) {
     if (!confirm("¿Informar un problema con este sitio?")) return;
     await fetch(`/api/sitios/${id}/reportar`, { method: 'POST' });
     alert("Reporte enviado. Gracias.");
+}
+
+// --------------------------------------------------
+// ✨ NUEVO: LÓGICA DEL WIDGET DE ACCESIBILIDAD ✨
+// --------------------------------------------------
+
+function toggleMenuAccesibilidad() {
+    const menu = document.getElementById('menu-accesibilidad');
+    menu.classList.toggle('menu-oculto');
+}
+
+function ajustarTexto(factor) {
+    // Cambia el tamaño de fuente de todo el body
+    const body = document.body;
+    let currentSize = parseFloat(window.getComputedStyle(body).fontSize);
+    // Aplicamos el factor (ej: 1.1 aumenta un 10%)
+    body.style.fontSize = (currentSize * factor) + 'px';
+}
+
+function toggleFiltro(clase) {
+    // Activa/Desactiva clases como 'escala-grises' o 'alto-contraste'
+    document.body.classList.toggle(clase);
+}
+
+function restablecerAccesibilidad() {
+    // Limpia todas las clases especiales y vuelve al tamaño base
+    document.body.className = ''; 
+    document.body.style.fontSize = '16px';
+    alert("Configuración de accesibilidad restablecida.");
+}
+
+// 8. SOPORTE DE VOZ (Placeholder para tu botón de voz)
+let vozActiva = false;
+function toggleVoz() {
+    vozActiva = !vozActiva;
+    const btn = document.getElementById('btn-voz');
+    btn.innerText = vozActiva ? '🔊' : '🔇';
+    btn.style.background = vozActiva ? '#FF7E6B' : '#ccc';
+    if(vozActiva) {
+        const msg = new SpeechSynthesisUtterance("Modo de voz activado");
+        window.speechSynthesis.speak(msg);
+    }
 }
 
 window.onload = cargarSitios;
