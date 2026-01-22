@@ -204,6 +204,10 @@ async function guardarSitio() {
 
         // 5. Ahora que "r" existe, ya podemos usar r.ok
         if (r.ok) {
+            // ✨ PRIMERO: Cerramos el modal para que no estorbe
+            cerrarModal(); 
+
+            // ✨ SEGUNDO: Mostramos la alerta linda
             Swal.fire({
                 title: '¡Guardado!',
                 text: 'Gracias por colaborar con AccesoBarrio.',
