@@ -1,0 +1,63 @@
+[
+  {
+    "nombre": "bar florencia",
+    "descripcion": "",
+    "caracteristicas": [
+      "🧠 Ambiente Calmado"
+    ],
+    "lat": 40.416,
+    "lng": -3.703
+  },
+  {
+    "nombre": "Heladeria",
+    "descripcion": "",
+    "caracteristicas": [
+      "🔊 Ruidoso"
+    ],
+    "lat": 40.4229434,
+    "lng": -3.6991521
+  },
+  {
+    "nombre": "casa antigua",
+    "descripcion": "",
+    "caracteristicas": [
+      "♿ Tiene Rampa"
+    ],
+    "lat": 40.4345314,
+    "lng": -3.6493559
+  },
+  {
+    "nombre": "Colegio don bosco",
+    "descripcion": "tiene rampas para silla de ruedas",
+    "caracteristicas": [
+      "Rampa"
+    ],
+    "lat": -33.34434202289775,
+    "lng": -60.20781934261323,
+    "puntuacion": 5,
+    "reportes": 0
+  },
+  {
+    "nombre": "Familia Daniele",
+    "descripcion": "Aquí van a encontrar siempre el corazón de su hija, Sofia. Para mamá. ",
+    "caracteristicas": [
+      "Rampa"
+    ],
+    "lat": -33.3261206,
+    "lng": -60.2272044,
+    "puntuacion": 5,
+    "reportes": 0
+  },
+  {
+    "nombre": "Banco ",
+    "descripcion": "",
+    "caracteristicas": [
+      "Rampa",
+      "Baño"
+    ],
+    "lat": -33.313359,
+    "lng": -60.2383747,
+    "puntuacion": 5,
+    "reportes": 0
+  }
+]
