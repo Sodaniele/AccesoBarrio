@@ -15,12 +15,13 @@ async function cargarSitios() {
 // 2. INICIALIZAR MAPA PRINCIPAL
 function initMap() {
     if (mapa) return;
-    mapa = L.map('mapa', {zoomControl: false}).setView([-33.33, -60.21], 13);
+    // Centrado inicial (se ajustará al localizar al usuario)
+    mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
     mapa.locate({setView: true, maxZoom: 15});
 }
 
-// 3. FUNCIÓN DIBUJAR SITIOS EN MAPA Y LISTA
+// 3. FUNCIÓN MAESTRA: DIBUJAR SITIOS EN MAPA Y LISTA
 function mostrarSitios(lista) {
     marcadores.forEach(m => mapa.removeLayer(m));
     marcadores = [];
@@ -59,7 +60,7 @@ function mostrarSitios(lista) {
             </div>
             <p style="color:#666; font-size:14px; margin:10px 0;">${s.descripcion || 'Sin descripción'}</p>
             <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                ${s.caracteristicas ? s.caracteristicas.map(cat => `<span class="tag-accesibilidad" style="background:#e0f2f1; padding:4px 8px; border-radius:8px; font-size:11px;">${cat}</span>`).join('') : ''}
+                ${s.caracteristicas ? s.caracteristicas.map(cat => `<span class="tag-accesibilidad" style="background:#e0f2f1; color:#006d77; padding:4px 8px; border-radius:8px; font-size:11px; font-weight:600;">${cat}</span>`).join('') : ''}
             </div>
         `;
         div.appendChild(card);
@@ -69,7 +70,9 @@ function mostrarSitios(lista) {
 // 4. BUSCADORES
 function buscarDesdeInicio() {
     const texto = document.getElementById('input-inicio').value;
-    if (!texto.trim()) return alert("Escribe el nombre de un lugar");
+    if (!texto.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Campo vacío', text: 'Escribe el nombre de un lugar', confirmButtonColor: '#006D77' });
+    }
 
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
@@ -93,9 +96,7 @@ function buscarTexto() {
 
     if (filtrados.length === 1) {
         mapa.flyTo([filtrados[0].lat, filtrados[0].lng], 16, { duration: 1.5 });
-        setTimeout(() => {
-            if (marcadores[0]) marcadores[0].openPopup();
-        }, 1600);
+        setTimeout(() => { if (marcadores[0]) marcadores[0].openPopup(); }, 1600);
     } else if (filtrados.length > 1) {
         const grupo = L.featureGroup(marcadores);
         mapa.fitBounds(grupo.getBounds(), { padding: [50, 50] });
@@ -122,78 +123,70 @@ async function cargarResultados(f) {
 function abrirFormulario() {
     document.getElementById('modal-anadir').style.display = 'flex';
     if (!mapaSel) {
-        mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([-33.33, -60.21], 14);
+        mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([40.4167, -3.7033], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaSel);
-        mapaSel.on('click', (e) => {
-            colocarMarcador(e.latlng);
-        });
+        mapaSel.on('click', (e) => { colocarMarcador(e.latlng); });
     }
     setTimeout(() => { mapaSel.invalidateSize(); }, 300);
 }
 
 function colocarMarcador(latlng) {
-    if (marcadorSel) {
-        marcadorSel.setLatLng(latlng);
-    } else {
-        marcadorSel = L.marker(latlng, { draggable: true }).addTo(mapaSel);
-    }
+    if (marcadorSel) { marcadorSel.setLatLng(latlng); } 
+    else { marcadorSel = L.marker(latlng, { draggable: true }).addTo(mapaSel); }
 }
 
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
-    if (!calle) return alert("Por favor, escribe calle y número");
+    if (!calle) return Swal.fire({ icon: 'info', title: 'Atención', text: 'Escribe calle y número', confirmButtonColor: '#006D77' });
 
-    // Quitamos la parte fija de San Nicolás para que sea global
-    const query = calle; 
-    
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&limit=1`;
 
     try {
         const r = await fetch(url);
         const data = await r.json();
-        
-        if (data && data.length > 0) {
+        if (data.length > 0) {
             const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-            
-            // Movemos el mapa de selección y ponemos el pin
             mapaSel.setView(latlng, 17);
             colocarMarcador(latlng);
-            
-            console.log("Dirección encontrada:", data[0].display_name);
         } else {
-            alert("No pudimos encontrar esa dirección exacta. Prueba a añadir la ciudad (ej: Calle Chile 4, Las Rozas).");
+            Swal.fire({ icon: 'error', title: 'No encontrado', text: 'No ubicamos esa dirección exacta.', confirmButtonColor: '#FF7E6B' });
         }
-    } catch (e) { 
-        console.error("Error en la búsqueda:", e);
-        alert("Hubo un error al conectar con el servicio de mapas.");
-    }
+    } catch (e) { console.error(e); }
 }
 
-function cerrarModal() {
-    document.getElementById('modal-anadir').style.display = 'none';
-}
+function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
 
 async function guardarSitio() {
-   
+    const nombre = document.getElementById('nombre').value;
+    const desc = document.getElementById('descripcion').value;
+    const checks = document.querySelectorAll('.cat-check:checked');
+    const caracteristicas = Array.from(checks).map(c => c.value);
 
-    if (r.ok) {
-    Swal.fire({
-        title: '¡Guardado!',
-        text: 'El sitio se ha registrado correctamente.',
-        icon: 'success',
-        confirmButtonColor: '#006D77', // Tu color Teal
-        confirmButtonText: 'Genial'
-    }).then(() => {
-        location.reload();
+    if (!nombre || !marcadorSel) {
+        return Swal.fire({ icon: 'warning', title: 'Faltan datos', text: 'Nombre y ubicación son obligatorios', confirmButtonColor: '#FF7E6B' });
+    }
+
+    const nuevo = {
+        nombre, descripcion: desc, caracteristicas,
+        lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng,
+        puntuacion: 5, reportes: 0
+    };
+
+    const r = await fetch('/api/sitios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevo)
     });
 
-    } else {
+    if (r.ok) {
         Swal.fire({
-            title: 'Ups...',
-            text: 'Algo salió mal al guardar.',
-            icon: 'error',
-            confirmButtonColor: '#FF7E6B' // Tu color Coral
-        });
+            title: '¡Guardado!',
+            text: 'Gracias por colaborar con la accesibilidad.',
+            icon: 'success',
+            confirmButtonColor: '#006D77'
+        }).then(() => { location.reload(); });
+    } else {
+        Swal.fire({ title: 'Error', text: 'No se pudo guardar.', icon: 'error', confirmButtonColor: '#FF7E6B' });
     }
 }
 
@@ -207,38 +200,42 @@ function alternarVista() {
 }
 
 async function reportarSitio(id) {
-    if (!confirm("¿Informar un problema con este sitio?")) return;
-    await fetch(`/api/sitios/${id}/reportar`, { method: 'POST' });
-    alert("Reporte enviado. Gracias.");
+    const result = await Swal.fire({
+        title: '¿Reportar problema?',
+        text: "Informarás que este sitio tiene errores de accesibilidad.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#FF7E6B',
+        confirmButtonText: 'Sí, reportar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        await fetch(`/api/sitios/${id}/reportar`, { method: 'POST' });
+        Swal.fire({ title: 'Enviado', text: 'Gracias por tu reporte.', icon: 'success', confirmButtonColor: '#006D77' });
+    }
 }
 
-
+// 8. ACCESIBILIDAD (Corregida para ROOT/REM)
 function toggleMenuAccesibilidad() {
-    const menu = document.getElementById('menu-accesibilidad');
-    menu.classList.toggle('menu-oculto');
+    document.getElementById('menu-accesibilidad').classList.toggle('menu-oculto');
 }
 
 function ajustarTexto(factor) {
-    // Cambia el tamaño de fuente de todo el body
-    const body = document.body;
-    let currentSize = parseFloat(window.getComputedStyle(body).fontSize);
-    // Aplico el factor (ej: 1.1 aumenta un 10%)
-    body.style.fontSize = (currentSize * factor) + 'px';
+    const root = document.documentElement;
+    let currentSize = parseFloat(window.getComputedStyle(root).fontSize);
+    root.style.fontSize = (currentSize * factor) + 'px';
 }
 
-function toggleFiltro(clase) {
-    // Activa/Desactiva clases como 'escala-grises' o 'alto-contraste'
-    document.body.classList.toggle(clase);
-}
+function toggleFiltro(clase) { document.body.classList.toggle(clase); }
 
 function restablecerAccesibilidad() {
-    // Limpio todas las clases especiales y vuelve al tamaño base
     document.body.className = ''; 
-    document.body.style.fontSize = '16px';
-    alert("Configuración de accesibilidad restablecida.");
+    document.documentElement.style.fontSize = '16px';
+    Swal.fire({ title: 'Restablecido', text: 'Vista original restaurada', icon: 'info', timer: 1500, showConfirmButton: false });
 }
 
-// 8. SOPORTE DE VOZ 
+// 9. SOPORTE DE VOZ 
 let vozActiva = false;
 function toggleVoz() {
     vozActiva = !vozActiva;
