@@ -14,7 +14,7 @@ body {
     min-height: 100vh; 
     overflow-x: hidden;
     overflow-y: auto; 
-    transition: filter 0.3s, background 0.3s; /* Suaviza el cambio de filtros */
+    transition: filter 0.3s, background 0.3s; 
 }
 
 /* 🏠 PANTALLA INICIO */
@@ -108,16 +108,13 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
 .firma-autor { text-align: center; padding: 20px 10px; margin-top: 20px; width: 100%; }
 .firma-autor p { font-size: 11px !important; color: #999 !important; letter-spacing: 0.5px; font-weight: 600; margin: 0; text-transform: uppercase; }
 
-/* -------------------------------------------------- */
-/* ✨ NUEVO: WIDGET DE ACCESIBILIDAD (Añadido) ✨ */
-/* -------------------------------------------------- */
 
 #btn-accesibilidad-flotante {
     position: fixed;
     bottom: 20px;
     left: 20px;
     z-index: 10000;
-    background: var(--teal); /* Usamos tu color Teal profesional */
+    background: var(--teal); 
     color: white;
     border: none;
     border-radius: 50%;

@@ -20,7 +20,7 @@ function initMap() {
     mapa.locate({setView: true, maxZoom: 15});
 }
 
-// 3. FUNCIÓN MAESTRA: DIBUJAR SITIOS EN MAPA Y LISTA
+// 3. FUNCIÓN DIBUJAR SITIOS EN MAPA Y LISTA
 function mostrarSitios(lista) {
     marcadores.forEach(m => mapa.removeLayer(m));
     marcadores = [];
@@ -195,9 +195,6 @@ async function reportarSitio(id) {
     alert("Reporte enviado. Gracias.");
 }
 
-// --------------------------------------------------
-// ✨ NUEVO: LÓGICA DEL WIDGET DE ACCESIBILIDAD ✨
-// --------------------------------------------------
 
 function toggleMenuAccesibilidad() {
     const menu = document.getElementById('menu-accesibilidad');
@@ -208,7 +205,7 @@ function ajustarTexto(factor) {
     // Cambia el tamaño de fuente de todo el body
     const body = document.body;
     let currentSize = parseFloat(window.getComputedStyle(body).fontSize);
-    // Aplicamos el factor (ej: 1.1 aumenta un 10%)
+    // Aplico el factor (ej: 1.1 aumenta un 10%)
     body.style.fontSize = (currentSize * factor) + 'px';
 }
 
@@ -218,13 +215,13 @@ function toggleFiltro(clase) {
 }
 
 function restablecerAccesibilidad() {
-    // Limpia todas las clases especiales y vuelve al tamaño base
+    // Limpio todas las clases especiales y vuelve al tamaño base
     document.body.className = ''; 
     document.body.style.fontSize = '16px';
     alert("Configuración de accesibilidad restablecida.");
 }
 
-// 8. SOPORTE DE VOZ (Placeholder para tu botón de voz)
+// 8. SOPORTE DE VOZ 
 let vozActiva = false;
 function toggleVoz() {
     vozActiva = !vozActiva;
