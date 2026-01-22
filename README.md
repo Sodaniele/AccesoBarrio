@@ -1,27 +1,42 @@
-# ♿ AccesoBarrio API
+# AccesoBarrio 🌍 ♿
 
-**AccesoBarrio** es una plataforma colaborativa diseñada para mapear y consultar la accesibilidad de locales y espacios públicos. El objetivo es proporcionar información detallada sobre accesibilidad motriz, visual, auditiva y cognitiva para mejorar la autonomía de las personas con discapacidad.
+**AccesoBarrio** es una aplicación web colaborativa diseñada para mejorar la movilidad urbana en San Nicolás. Permite a los usuarios registrar y consultar puntos de accesibilidad en un mapa interactivo en tiempo real.
 
----
+## 🚀 Características
+- 📍 **Mapeo Interactivo:** Visualización de puntos de accesibilidad mediante Leaflet.js.
+- 📝 **Registro Colaborativo:** Los usuarios pueden añadir nuevos sitios (rampas, baños adaptados, espacios calmos).
+- 📱 **Mobile First:** Diseño optimizado para su uso en dispositivos móviles como una Web App.
+- ☁️ **Cloud Database:** Almacenamiento seguro en la nube con MongoDB Atlas.
 
-## 🚀 Tecnologías utilizadas
-* **Node.js**: Entorno de ejecución para JavaScript.
-* **Express**: Framework para la creación de la API REST.
-* **Arquitectura MVC**: Organización profesional del código (Modelos, Vistas, Controladores).
+## 🛠️ Stack Tecnológico
+- **Frontend:** HTML5, CSS3 (Custom Variables & Grid), JavaScript (Vanilla ES6).
+- **Backend:** Node.js & Express.
+- **Base de Datos:** MongoDB (Mongoose ODM).
+- **Mapas:** Leaflet.js API.
+- **Despliegue:** Render.com.
 
----
+## ⚙️ Instalación y Configuración
+Si deseas ejecutar este proyecto localmente:
 
-## 📂 Estructura del Proyecto
-- `src/models`: Definición de las estructuras de datos.
-- `src/controllers`: Lógica de negocio y manejo de peticiones.
-- `src/routes`: Definición de los endpoints de la API.
-- `server.js`: Punto de entrada de la aplicación.
+1. Clona el repositorio:
+   ```bash
+   git clone [https://github.com/Sodaniele/AccesoBarrio.git](https://github.com/Sodaniele/AccesoBarrio.git)
+Instala las dependencias:
 
----
+Bash
 
-## 🛠️ Instalación y Uso
+npm install
+Configura tu variable de entorno MONGO_URI en un archivo .env.
 
-1. Clonar el repositorio.
+Inicia el servidor:
+
+Bash
+
+npm start
+✒️ Autora
+Desarrollado con ❤️ por Sofía Fabiana Daniele como parte de Proyecto25.
+
+© 2026 AccesoBarrio - San Nicolás, Argentina.
 2. Instalar dependencias:
    ```bash
    npm install
