@@ -174,22 +174,30 @@ function cerrarModal() {
 }
 
 async function guardarSitio() {
-    const nombre = document.getElementById('nombre').value;
-    const desc = document.getElementById('descripcion').value;
-    const checks = document.querySelectorAll('.cat-check:checked');
-    const caracteristicas = Array.from(checks).map(c => c.value);
-    if (!nombre || !marcadorSel) return alert("Falta nombre o ubicación");
-    const nuevo = {
-        nombre, descripcion: desc, caracteristicas,
-        lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng,
-        puntuacion: 5, reportes: 0
-    };
-    const r = await fetch('/api/sitios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevo)
-    });
-    if (r.ok) { alert("✅ ¡Guardado!"); location.reload(); }
+    // ... tu código anterior (nombre, desc, checks, etc.) ...
+
+    if (r.ok) {
+        // ✨ REEMPLAZO DE LA ALERTA FEA ✨
+        Swal.fire({
+            title: '¡Guardado con éxito!',
+            text: 'Gracias por ayudar a mapear la accesibilidad.',
+            icon: 'success',
+            confirmButtonText: 'Genial',
+            confirmButtonColor: '#006D77', // Tu color Teal
+            borderRadius: '20px',
+            fontFamily: 'Poppins'
+        }).then((result) => {
+            // Cuando el usuario haga clic en el botón, se recarga la página
+            location.reload();
+        });
+    } else {
+        Swal.fire({
+            title: 'Ups...',
+            text: 'Algo salió mal al guardar.',
+            icon: 'error',
+            confirmButtonColor: '#FF7E6B' // Tu color Coral
+        });
+    }
 }
 
 // 7. UTILIDADES
