@@ -42,7 +42,7 @@ Este proyecto y su código fuente están protegidos por las leyes de propiedad i
 ## 📬 Contacto
 Si eres una organización, ayuntamiento o desarrollador interesado en colaborar o escalar esta solución, puedes contactarme:
 
-- **LinkedIn:** [Tu Perfil de LinkedIn aquí]
+- **LinkedIn:** www.linkedin.com/in/sodaniele
 - **Desarrollado por:** Sofía Fabiana Daniele | **Proyecto25**
 
 ---
