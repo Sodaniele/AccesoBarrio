@@ -141,21 +141,32 @@ function colocarMarcador(latlng) {
 
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
-    if (!calle) return alert("Escribe calle y número");
-    // Ahora buscará exactamente lo que el usuario escriba
-    const query = calle;
+    if (!calle) return alert("Por favor, escribe calle y número");
+
+    // Quitamos la parte fija de San Nicolás para que sea global
+    const query = calle; 
+    
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+
     try {
         const r = await fetch(url);
         const data = await r.json();
-        if (data.length > 0) {
+        
+        if (data && data.length > 0) {
             const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            
+            // Movemos el mapa de selección y ponemos el pin
             mapaSel.setView(latlng, 17);
             colocarMarcador(latlng);
+            
+            console.log("Dirección encontrada:", data[0].display_name);
         } else {
-            alert("No encontramos esa dirección.");
+            alert("No pudimos encontrar esa dirección exacta. Prueba a añadir la ciudad (ej: Calle Chile 4, Las Rozas).");
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("Error en la búsqueda:", e);
+        alert("Hubo un error al conectar con el servicio de mapas.");
+    }
 }
 
 function cerrarModal() {
