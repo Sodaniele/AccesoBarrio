@@ -4,18 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AccesoBarrio 🌍</title>
-
-    <meta property="og:title" content="AccesoBarrio 🌍 - Mapeando la Inclusión" />
-    <meta property="og:description" content="Una Web App colaborativa diseñada para mejorar la autonomía de personas con movilidad reducida." />
-    <meta property="og:image" content="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop" /> 
-    <meta property="og:url" content="https://accesobarrio.onrender.com" />
-    <meta property="og:type" content="website" />
-    
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='12' fill='%23008080'/%3E%3Cpath fill='%23fff' d='M20.5 6c-2.61.7-5.67 1-8.5 1s-5.89-.3-8.5-1L3 8c1.86.5 4 .83 6 1v13h2v-6h2v6h2V9c2-.17 4.14-.5 6-1l-.5-2zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 2 2z'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/estilos.css">
-    <link rel="manifest" href="/manifest.json">
 </head>
 <body>
 
@@ -36,32 +27,21 @@
         </div>
 
         <nav class="grid-categorias">
-            <button class="boton-cat cat-movilidad" onclick="cargarResultados('Rampa')">
-                <span class="emoji">♿</span><span class="txt">Movilidad</span>
-            </button>
-            <button class="boton-cat cat-calma" onclick="cargarResultados('Calma')">
-                <span class="emoji">🧠</span><span class="txt">Calma</span>
-            </button>
-            <button class="boton-cat cat-visual" onclick="cargarResultados('Braille')">
-                <span class="emoji">👁️</span><span class="txt">Visual</span>
-            </button>
-            <button class="boton-cat cat-todo" onclick="cargarResultados(null)">
-                <span class="emoji">🗺️</span><span class="txt">Todo</span>
-            </button>
+            <button class="boton-cat" onclick="cargarResultados('Rampa')"><span class="emoji">♿</span><span class="txt">Movilidad</span></button>
+            <button class="boton-cat" onclick="cargarResultados('Calma')"><span class="emoji">🧠</span><span class="txt">Calma</span></button>
+            <button class="boton-cat" onclick="cargarResultados('Pictogramas')"><span class="emoji">🧩</span><span class="txt">Cognitiva</span></button>
+            <button class="boton-cat" onclick="cargarResultados('LSA')"><span class="emoji">👋</span><span class="txt">Auditiva</span></button>
+            <button class="boton-cat" onclick="cargarResultados(null)"><span class="emoji">🗺️</span><span class="txt">Todo</span></button>
         </nav>
 
         <button class="boton-anadir-home" onclick="abrirFormulario()">+ Añadir Sitio</button>
-
-        <div class="firma-autor">
-            <p>© 2026 Sofía Fabiana Daniele | by Proyecto25</p>
-        </div>
     </main>
 
-    <div id="pantalla-resultados">
+    <div id="pantalla-resultados" style="display: none;">
         <div class="barra-superior-pro">
             <button onclick="location.reload()" class="btn-circular">⬅</button>
             <div style="display: flex; gap: 8px;">
-                <button class="btn-lista-pill" onclick="abrirModalFiltros()" style="background: #f0f0f0; color: #333;">⚙️ Filtros</button>
+                <button class="btn-lista-pill" onclick="abrirModalFiltros()">⚙️ Filtros</button>
                 <button class="btn-lista-pill" onclick="alternarVista()" id="btn-vista">📋 Ver Lista</button>
             </div>
         </div>
@@ -75,67 +55,61 @@
 
         <div id="vista-lista" style="display: none;">
             <div class="buscador-zona-wrapper">
-                <input type="text" id="inputBuscadorZona" placeholder="🔍 Filtrar por ciudad (ej: Madrid, San Nicolás...)" onkeyup="filtrarPorZona()">
+                <input type="text" id="inputBuscadorZona" placeholder="🔍 Buscar Ciudad (Madrid, San Nicolas...)" onkeyup="filtrarPorZona()">
                 <ul id="sugerenciasZona" class="sugerencias-lista"></ul>
             </div>
-            <div id="contenedor-items-lista">
-                </div>
-        </div>
-
-        <div class="firma-autor">
-            <p>© 2026 Sofía Fabiana Daniele | by Proyecto25</p>
+            <div id="contenedor-items-lista"></div>
         </div>
     </div>
 
     <div id="modal-filtros" class="modal-personalizado">
         <div class="contenido-modal">
             <h2>⚙️ Filtrar por requisitos</h2>
-            <div class="grid-checks-pro" id="contenedor-filtros-checks">
+            <div class="grid-checks-pro">
                 <label><input type="checkbox" class="filtro-check" value="Rampa"> ♿ Rampa</label>
                 <label><input type="checkbox" class="filtro-check" value="Baño"> 🚻 Baño</label>
                 <label><input type="checkbox" class="filtro-check" value="Calma"> 🧠 Calma</label>
-                <label><input type="checkbox" class="filtro-check" value="Braille"> 👁️ Braille/QR</label>
+                <label><input type="checkbox" class="filtro-check" value="Braille"> 👁️ Braille</label>
+                <label><input type="checkbox" class="filtro-check" value="Pictogramas"> 🧩 Pictogramas</label>
+                <label><input type="checkbox" class="filtro-check" value="LSA"> 👋 Señas/LSA</label>
+                <label><input type="checkbox" class="filtro-check" value="Aro"> 👂 Aro Mag.</label>
+                <label><input type="checkbox" class="filtro-check" value="Podotactil"> 👣 Piso Podot.</label>
+                <label><input type="checkbox" class="filtro-check" value="Perro"> 🐕 Perro Guía</label>
             </div>
             <button class="btn-principal" onclick="aplicarFiltrosMultiples()">Aplicar Filtros</button>
-            <button class="btn-secundario" onclick="cerrarModalFiltros()">Cancelar</button>
+            <button class="btn-secundario" onclick="cerrarModalFiltros()">Cerrar</button>
         </div>
     </div>
 
     <div id="modal-anadir">
         <div class="contenido-modal">
-            <h2>📍 Registrar Espacio</h2>
+            <h2>📍 Registrar Espacio Inclusivo</h2>
             <div class="scroll-form">
                 <input type="text" id="nombre" placeholder="Nombre del lugar">
-                <textarea id="descripcion" placeholder="Detalles de accesibilidad..."></textarea>
+                <textarea id="descripcion" placeholder="Explica brevemente la accesibilidad..."></textarea>
                 
-                <p class="titulo-seccion">Opciones de Accesibilidad:</p>
+                <p style="font-size: 12px; font-weight: 800; color: var(--teal); margin: 10px 0 5px 0;">CATEGORÍAS:</p>
                 <div class="grid-checks-pro">
                     <label><input type="checkbox" class="cat-check" value="Rampa"> ♿ Rampa</label>
                     <label><input type="checkbox" class="cat-check" value="Baño"> 🚻 Baño</label>
                     <label><input type="checkbox" class="cat-check" value="Calma"> 🧠 Calma</label>
-                    <label><input type="checkbox" class="cat-check" value="Braille"> 👁️ Braille/QR</label>
+                    <label><input type="checkbox" class="cat-check" value="Braille"> 👁️ Braille</label>
+                    <label><input type="checkbox" class="cat-check" value="Pictogramas"> 🧩 Pictos</label>
+                    <label><input type="checkbox" class="cat-check" value="LSA"> 👋 Señas</label>
+                    <label><input type="checkbox" class="cat-check" value="Aro"> 👂 Aro Mag.</label>
+                    <label><input type="checkbox" class="cat-check" value="Podotactil"> 👣 Piso Podot.</label>
+                    <label><input type="checkbox" class="cat-check" value="Perro"> 🐕 Perro Guía</label>
                 </div>
 
-                <p class="titulo-seccion">Dirección exacta:</p>
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="input-direccion" placeholder="Ej: Calle Chile 4, Las Rozas" style="flex: 1; margin-bottom: 0;">
-                    <button onclick="buscarDireccion()" style="background: #008080; color: white; border: none; border-radius: 15px; padding: 0 15px; cursor: pointer; font-size: 18px;">🔍</button>
+                <div style="display: flex; gap: 5px; margin-top: 15px;">
+                    <input type="text" id="input-direccion" placeholder="Dirección completa..." style="flex: 1; margin-bottom: 0;">
+                    <button onclick="buscarDireccion()" style="background: var(--teal); color: white; border: none; border-radius: 15px; padding: 0 15px; cursor: pointer;">🔍</button>
                 </div>
-
-                <div id="mapa-seleccion"></div>
+                <div id="mapa-seleccion" style="height: 150px; border-radius: 15px; margin: 10px 0;"></div>
+                
                 <button class="btn-principal" onclick="guardarSitio()">Guardar Sitio</button>
-                <button class="btn-secundario" onclick="cerrarModal()">Cerrar</button>
+                <button class="btn-secundario" onclick="cerrarModal()">Cancelar</button>
             </div>
-        </div>
-    </div>
-
-    <div id="accesibilidad-widget">
-        <button id="btn-accesibilidad-flotante" onclick="toggleMenuAccesibilidad()">♿</button>
-        <div id="menu-accesibilidad" class="menu-oculto">
-            <h3>Accesibilidad</h3>
-            <button onclick="ajustarTexto(1.1)">➕ Aumentar</button>
-            <button onclick="ajustarTexto(0.9)">➖ Disminuir</button>
-            <button onclick="restablecerAccesibilidad()" class="btn-reset">🔄 Reset</button>
         </div>
     </div>
 
