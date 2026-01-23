@@ -123,61 +123,68 @@ function filtrarPorZona() {
 }
 
 async function buscarDireccion() {
-    const direccionUsuario = document.getElementById('input-direccion').value;
-    if (!direccionUsuario) return Swal.fire({ icon: 'info', text: 'Por favor, escribe una dirección.' });
+    let textoUsuario = document.getElementById('input-direccion').value;
+    if (!textoUsuario) return Swal.fire({ icon: 'info', text: 'Escribe una dirección.' });
 
-    // Mostramos un pequeño aviso de que estamos buscando
+    // Limpieza inteligente: Nominatim prefiere "Sarmiento, San Nicolas" en vez de "Calle Sarmiento..."
+    // Quitamos la palabra "Calle" o "Avenida" al principio si el usuario la puso
+    let busquedaLimpia = textoUsuario.replace(/calle|avenida|av.|pje|pasaje/gi, "").trim();
+
     const loadingToast = Swal.fire({
-        title: 'Buscando...',
-        allowOutsideClick: false,
+        title: 'Buscando lugar...',
         didOpen: () => { Swal.showLoading(); }
     });
 
-    // Usamos la API de Nominatim con addressdetails para extraer la ciudad y el país
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccionUsuario)}&addressdetails=1&limit=1`;
+    // Intentamos la búsqueda
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(busquedaLimpia)}&addressdetails=1&limit=1`;
 
     try {
-        const response = await fetch(url);
-        const data = await response.json();
+        const r = await fetch(url);
+        const data = await r.json();
 
         if (data.length > 0) {
-            const resultado = data[0];
-            const addr = resultado.address;
+            const info = data[0];
+            const addr = info.address;
 
-            // Extraemos la ciudad/pueblo y el país
+            // Extraemos la ciudad y el país
             const ciudad = addr.city || addr.town || addr.village || addr.municipality || addr.county || "Desconocida";
-            const pais = addr.country || "Desconocido";
+            const pais = addr.country || "País";
 
-            // Guardamos el formato que querías: CIUDAD, PAÍS
+            // Guardamos el formato pro: CIUDAD, PAÍS
             localidadDetectada = `${ciudad.toUpperCase()}, ${pais.toUpperCase()}`;
-            
-            const lat = parseFloat(resultado.lat);
-            const lon = parseFloat(resultado.lon);
 
-            // Movemos el mapa de selección con un efecto suave
-            mapaSel.flyTo([lat, lon], 17, { duration: 2 });
+            const lat = parseFloat(info.lat);
+            const lon = parseFloat(info.lon);
 
-            // Colocamos o movemos el marcador
+            // Efecto Uber: Vuelo suave y zoom
+            mapaSel.flyTo([lat, lon], 17, { duration: 1.5 });
+
+            // Ubicamos o movemos el pin
             if (marcadorSel) {
                 marcadorSel.setLatLng([lat, lon]);
             } else {
                 marcadorSel = L.marker([lat, lon], { draggable: true }).addTo(mapaSel);
+                
+                // Activar el "Efecto Uber" si mueven el pin manualmente
+                marcadorSel.on('dragend', function(e) {
+                    const pos = e.target.getLatLng();
+                    actualizarDireccionDesdePin(pos.lat, pos.lng);
+                });
             }
 
-            Swal.close(); // Cerramos el aviso de carga
-            console.log("Encontrado:", localidadDetectada);
-            
+            Swal.close();
         } else {
+            // Si falla, avisamos pero damos una sugerencia
             Swal.fire({
                 icon: 'error',
                 title: 'No encontrado',
-                text: 'No pudimos localizar esa dirección. Prueba agregando la ciudad o el país.',
+                text: 'Nominatim no encontró la calle. Prueba poniendo solo la "Calle, Ciudad".',
                 confirmButtonColor: '#006D77'
             });
         }
     } catch (e) {
-        console.error("Error en la geocodificación:", e);
-        Swal.fire({ icon: 'error', text: 'Hubo un problema con el buscador de mapas.' });
+        console.error(e);
+        Swal.fire({ icon: 'error', text: 'Error de conexión con el mapa.' });
     }
 }
 
