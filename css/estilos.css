@@ -1,89 +1,62 @@
-:root {
-    --coral: #FF7E6B;
-    --teal: #006D77;
-    --bg: #FFF9F5;
-    --teal-light: #e0f2f1;
+/* ... (Tus variables :root y body igual) ... */
+
+/* FORZAR OCULTAMIENTO DE MODALES */
+.modal-personalizado, #modal-anadir, #modal-filtros {
+    display: none; /* Esto evita que se vea "todo junto" al inicio */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 109, 119, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
 }
 
-/* AJUSTES GLOBALES */
-body { 
-    font-family: 'Poppins', sans-serif; 
-    margin: 0; 
-    background-color: var(--bg);
-    background-image: radial-gradient(var(--teal) 0.5px, transparent 0.5px);
-    background-size: 20px 20px;
-    min-height: 100vh; 
-    overflow-x: hidden;
-}
+/* Solo se muestran cuando el JS les pone display: flex */
 
-/* PANTALLA INICIO */
 #pantalla-inicio {
-    display: flex; flex-direction: column; align-items: center; 
-    padding: 40px 20px; min-height: 100vh; box-sizing: border-box;
-}
-
-.filtros-rapidos {
-    width: 100%; max-width: 450px;
-    display: flex; justify-content: center; margin-bottom: 20px;
-}
-
-.chip-todo {
-    background: white; border: 2px solid var(--teal-light); color: var(--teal);
-    padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    min-height: 100vh;
 }
 
 .grid-categorias { 
-    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; 
-    width: 100%; max-width: 450px; 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    width: 100%; 
+    max-width: 450px; 
 }
 
 .boton-cat {
-    background: white; border: none; border-radius: 25px; aspect-ratio: 1/1;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.06); cursor: pointer; transition: 0.3s;
+    background: white;
+    border-radius: 30px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: none;
+    cursor: pointer;
 }
 
-/* PANTALLA RESULTADOS (Aquí estaba el error) */
-#pantalla-resultados { 
-    display: none; /* Se cambia a flex en JS */
-    flex-direction: column; 
-    height: 100vh; 
-    width: 100%;
+/* Estilo para el botón Todo */
+.filtros-rapidos {
+    margin-bottom: 25px;
 }
 
-.barra-superior-pro { 
-    display: flex; align-items: center; justify-content: space-between; 
-    padding: 10px 20px; background: white; border-bottom: 1px solid #eee; 
+.chip-todo {
+    background: white;
+    border: 2px solid var(--teal-light);
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: 700;
+    color: var(--teal);
+    cursor: pointer;
 }
-
-/* Este contenedor debe tener flex: 1 para "empujar" y llenar la pantalla */
-#contenedor-mapa-pro { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    position: relative;
-    width: 100%;
-}
-
-#mapa { 
-    flex: 1; 
-    width: 100%; 
-    height: 100%; /* Forzamos altura */
-}
-
-/* El resto de tus estilos (modales, buscador-pill, etc.) se mantienen igual */
-.buscador-mapa-flotante {
-    position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
-    z-index: 1000; width: 90%; max-width: 400px;
-}
-.buscador-pill {
-    background: white; border-radius: 50px; padding: 8px 15px; display: flex; align-items: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-.buscador-pill input { border: none; outline: none; flex: 1; padding: 5px; }
-
-/* Loader */
-#loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; }
-.spinner { width: 50px; height: 50px; border: 5px solid var(--teal-light); border-top-color: var(--teal); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
