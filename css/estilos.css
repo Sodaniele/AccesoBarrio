@@ -5,160 +5,110 @@
     --teal-light: #e0f2f1;
 }
 
-/* 1. RESET Y FONDO */
+/* 1. RESET Y BASE */
 body { 
-    font-family: 'Poppins', sans-serif; 
-    margin: 0; 
-    background-color: var(--bg);
+    font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg);
     background-image: radial-gradient(var(--teal) 0.5px, transparent 0.5px);
-    background-size: 20px 20px;
-    min-height: 100vh;
-    overflow-x: hidden;
+    background-size: 20px 20px; min-height: 100vh; overflow-x: hidden;
 }
 
-/* 2. OCULTAR LO QUE NO DEBE VERSE (Crucial para que no se vea "todo junto") */
-#pantalla-resultados, 
-.modal-personalizado, 
-#modal-anadir, 
-#modal-filtros {
-    display: none; 
-}
+/* 2. OCULTAR ELEMENTOS POR DEFECTO (Esto arregla el amontonamiento) */
+#pantalla-resultados, .modal-personalizado { display: none; }
 
 /* 3. PANTALLA INICIO */
 #pantalla-inicio {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
+    min-height: 100vh; box-sizing: border-box;
 }
 
-h1 { 
-    font-size: clamp(2rem, 7vw, 3rem); 
-    color: var(--teal); 
-    margin: 0; 
-    font-weight: 800; 
-}
+h1 { font-size: 2.5rem; color: var(--teal); font-weight: 800; margin: 0; }
+p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 
-/* 4. BUSCADORES (Estilo Píldora) */
-.buscador-inicio-wrapper, .buscador-pill {
-    background: white;
-    border-radius: 50px;
-    padding: 8px 15px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    width: 100%;
-    max-width: 450px;
-    margin-bottom: 25px;
+/* Buscador Inicio */
+.buscador-inicio-wrapper {
+    background: white; border-radius: 50px; padding: 6px; display: flex;
+    width: 100%; max-width: 450px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
+#input-inicio { flex: 1; border: none; padding: 0 20px; outline: none; font-size: 16px; background: transparent; }
+.buscador-inicio-wrapper button { background: var(--coral); border: none; border-radius: 50%; width: 45px; height: 45px; color: white; cursor: pointer; }
 
-#input-inicio, .buscador-pill input {
-    flex: 1; border: none; outline: none; padding: 10px; font-family: inherit;
-}
-
-.buscador-inicio-wrapper button {
-    background: var(--coral); border: none; border-radius: 50%;
-    width: 40px; height: 40px; color: white; cursor: pointer;
-}
-
-/* 5. EL CHIP "TODO" (Separado de la grilla) */
-.filtros-rapidos {
-    width: 100%;
-    max-width: 450px;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
+/* Chip Todo */
+.filtros-rapidos { width: 100%; max-width: 450px; display: flex; justify-content: center; margin-bottom: 20px; }
 .chip-todo {
-    background: white;
-    border: 2px solid var(--teal-light);
-    color: var(--teal);
-    padding: 10px 25px;
-    border-radius: 50px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    background: white; border: 2px solid var(--teal-light); color: var(--teal);
+    padding: 10px 25px; border-radius: 50px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s;
 }
-
 .chip-todo:hover { background: var(--teal-light); transform: translateY(-2px); }
 
-/* 6. GRILLA 2x2 DE CATEGORÍAS */
-.grid-categorias { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 15px; 
-    width: 100%; 
-    max-width: 450px; 
-}
-
+/* Grilla 2x2 */
+.grid-categorias { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; }
 .boton-cat {
-    background: white;
-    border: none;
-    border-radius: 25px;
-    aspect-ratio: 1 / 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    cursor: pointer;
-    transition: 0.3s;
+    background: white; border: none; border-radius: 25px; aspect-ratio: 1 / 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06); cursor: pointer; transition: 0.3s;
 }
-
 .boton-cat:hover { transform: scale(1.03); }
 .boton-cat .emoji { font-size: 40px; margin-bottom: 5px; }
 .boton-cat .txt { font-weight: 700; color: var(--teal); font-size: 14px; }
 
-/* 7. BOTÓN AÑADIR PRINCIPAL */
 .boton-anadir-home {
-    margin-top: 30px;
-    background: var(--coral);
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(255,126,107,0.3);
+    margin-top: 35px; background: var(--coral); color: white; border: none;
+    padding: 15px 40px; border-radius: 50px; font-weight: 700; font-size: 16px;
+    cursor: pointer; box-shadow: 0 10px 20px rgba(255,126,107,0.3);
 }
 
-/* 8. DISEÑO DE LOS MODALES (Cuando se activan con JS) */
+/* 4. MODALES (Estilos fijos) */
 .modal-personalizado {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 109, 119, 0.4);
-    backdrop-filter: blur(8px);
-    z-index: 99999;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    box-sizing: border-box;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 109, 119, 0.4); backdrop-filter: blur(8px); z-index: 99999;
+    align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;
 }
-
 .contenido-modal {
-    background: white;
-    width: 100%;
-    max-width: 450px;
-    padding: 30px;
-    border-radius: 30px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    max-height: 90vh;
-    overflow-y: auto;
+    background: white; width: 100%; max-width: 450px; padding: 25px;
+    border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;
+}
+.grid-checks-pro { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0; }
+.grid-checks-pro label { 
+    background: #f9f9f9; border: 1px solid #eee; padding: 10px; border-radius: 12px; 
+    font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; 
+}
+.grid-checks-pro label:has(input:checked) { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
+
+/* 5. PANTALLA RESULTADOS */
+#pantalla-resultados { display: none; flex-direction: column; height: 100vh; width: 100%; }
+.barra-superior-pro { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: white; border-bottom: 1px solid #eee; }
+#contenedor-mapa-pro { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+#mapa { flex: 1; width: 100%; height: 100%; }
+
+/* Buscadores Píldora */
+.buscador-pill {
+    background: white; border-radius: 50px; padding: 8px 15px; display: flex; align-items: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 2px solid transparent; width: 100%; box-sizing: border-box;
+}
+.buscador-pill:focus-within { border-color: var(--teal); }
+.buscador-pill input { border: none; outline: none; flex: 1; padding: 0 10px; font-size: 14px; }
+.buscador-mapa-flotante { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; }
+
+/* Buscador Dirección Registro */
+.buscador-direccion-wrapper {
+    display: flex; background: white; border-radius: 50px; padding: 5px; border: 2px solid #eee; margin-bottom: 15px;
+}
+.buscador-direccion-wrapper input { flex: 1; border: none; outline: none; padding: 10px 15px; background: transparent; }
+.buscador-direccion-wrapper button {
+    background: var(--teal); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;
 }
 
-/* 9. TARJETAS DE LA LISTA */
-.item-lista { 
-    background: white; border-radius: 20px; padding: 20px; 
-    margin-bottom: 15px; border-left: 6px solid var(--teal); 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-}
+/* Listas y Botones */
+#vista-lista { flex: 1; overflow-y: auto; display: none; background: #fdfdfd; }
+.item-lista { background: white; border-radius: 20px; padding: 20px; margin: 15px; border: 1px solid #eee; border-left: 6px solid var(--teal); }
+.tag-accesibilidad { background: var(--teal-light); color: var(--teal); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; margin: 2px; display: inline-block; }
+.btn-principal { width: 100%; background: var(--coral); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; margin-top: 10px; }
+.btn-secundario { width: 100%; background: #eee; border: none; padding: 12px; border-radius: 15px; margin-top: 10px; cursor: pointer; }
 
-/* Loader y Firma */
-#loading-overlay { position: fixed; inset: 0; background: white; z-index: 100001; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+/* Loader */
+#loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100001; }
 .spinner { width: 50px; height: 50px; border: 5px solid var(--teal-light); border-top-color: var(--teal); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.firma-autor { margin-top: 40px; opacity: 0.5; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+#mapa-seleccion { height: 150px; border-radius: 15px; margin: 10px 0; border: 2px solid #eee; }
+.firma-autor { text-align: center; margin-top: 30px; opacity: 0.6; font-size: 10px; }
