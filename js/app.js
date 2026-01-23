@@ -1,6 +1,4 @@
-let mapa, marcadores = [], locales = [], ptoSel = 5;
-let mapaSel, marcadorSel;
-let editandoId = null;
+let mapa, marcadores = [], locales = [], editandoId = null;
 let localidadDetectada = "";
 
 async function cargarSitios() {
@@ -12,27 +10,6 @@ async function cargarSitios() {
     } catch(e) { console.error(e); }
 }
 
-const crearIcono = (emoji, color) => L.divIcon({
-    html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
-    className: '', iconSize: [35, 35], iconAnchor: [17, 35]
-});
-
-const iconos = {
-    movilidad: crearIcono('♿', '#006D77'),
-    calma: crearIcono('🧠', '#83C5BE'),
-    visual: crearIcono('👁️', '#E29578'),
-    especial: crearIcono('❤️', '#FFD700'),
-    default: crearIcono('📍', '#008080')
-};
-
-function initMap() {
-    if (mapa) return;
-    mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
-    mapa.locate({setView: true, maxZoom: 15});
-}
-
-// ✨ FUNCIÓN MAESTRA: Agrupa por Ciudad y crea Acordeones
 function mostrarSitios(lista) {
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
@@ -40,7 +17,7 @@ function mostrarSitios(lista) {
     if (!divContenedor) return;
     divContenedor.innerHTML = '';
 
-    // Agrupamiento
+    // Agrupamiento por Ciudad
     const grupos = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
@@ -48,175 +25,72 @@ function mostrarSitios(lista) {
         return acc;
     }, {});
 
-    // Renderizado por Ciudad
     Object.keys(grupos).sort().forEach(ciudad => {
-        const contenedorCiudad = document.createElement('div');
-        contenedorCiudad.className = 'contenedor-ciudad';
-        contenedorCiudad.innerHTML = `
+        const container = document.createElement('div');
+        container.className = 'contenedor-ciudad';
+        container.innerHTML = `
             <div class="header-ciudad" onclick="toggleCiudad(this)">
                 <span>📍 ${ciudad}</span>
-                <span class="contador-pines">${grupos[ciudad].length} sitios</span>
+                <span class="contador-pines">${grupos[ciudad].length}</span>
             </div>
             <div class="lista-pines-ciudad" style="display: none;"></div>
         `;
-
-        const contenedorPines = contenedorCiudad.querySelector('.lista-pines-ciudad');
-
+        const pinesDiv = container.querySelector('.lista-pines-ciudad');
         grupos[ciudad].forEach(s => {
-            const esPinProtegido = s.nombre === "Familia Daniele";
-            let iconoAUsar = s.caracteristicas.includes('Rampa') ? iconos.movilidad : iconos.default;
-            if (esPinProtegido) iconoAUsar = iconos.especial;
-
-            if (mapa) {
-                const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`<b>${s.nombre}</b>`);
-                marcadores.push(m);
-            }
-
             const card = document.createElement('div');
             card.className = 'item-lista';
-            card.innerHTML = `
-                <div style="flex:1">
-                    <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
-                    <p style="font-size:12px; color:#666;">${s.descripcion || ''}</p>
-                    <div style="margin-top:8px;">
-                        ${s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-            contenedorPines.appendChild(card);
+            card.innerHTML = `<h3>${s.nombre}</h3><p>${s.descripcion || ''}</p>
+                <div>${s.caracteristicas.map(c => `<span class="tag-accesibilidad">${c}</span>`).join('')}</div>`;
+            pinesDiv.appendChild(card);
         });
-        divContenedor.appendChild(contenedorCiudad);
+        divContenedor.appendChild(container);
     });
 }
 
-function toggleCiudad(elemento) {
-    const lista = elemento.nextElementSibling;
-    const abierto = lista.style.display === 'grid';
-    lista.style.display = abierto ? 'none' : 'grid';
-    elemento.classList.toggle('ciudad-activa');
-}
-
-// ✨ BUSCADOR: Sugerencias reales basadas en tus datos
 function filtrarPorZona() {
     const input = document.getElementById('inputBuscadorZona');
-    const texto = input.value.toUpperCase();
-    const sugerenciasUl = document.getElementById('sugerenciasZona');
-    sugerenciasUl.innerHTML = '';
+    const valor = input.value.toUpperCase();
+    const listaSug = document.getElementById('sugerenciasZona');
+    listaSug.innerHTML = '';
 
-    if (texto.length < 1) { mostrarSitios(locales); return; }
+    if (valor.length < 1) { mostrarSitios(locales); return; }
 
-    const zonas = [...new Set(locales.map(l => l.localidad || 'UBICACIÓN GENERAL'))];
-    const coincidencias = zonas.filter(z => z.includes(texto));
-
-    coincidencias.forEach(z => {
+    const ciudades = [...new Set(locales.map(l => l.localidad || 'UBICACIÓN GENERAL'))];
+    ciudades.filter(c => c.includes(valor)).forEach(c => {
         const li = document.createElement('li');
-        li.textContent = z;
+        li.textContent = c;
         li.onclick = () => {
-            input.value = z;
-            sugerenciasUl.innerHTML = '';
-            const filtrados = locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === z);
+            input.value = c;
+            listaSug.innerHTML = '';
+            const filtrados = locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === c);
             mostrarSitios(filtrados);
-            // Abrir automáticamente la ciudad filtrada
             const header = document.querySelector('.header-ciudad');
             if (header) toggleCiudad(header);
-            if(filtrados.length > 0) {
-                alternarVista();
-                mapa.flyTo([filtrados[0].lat, filtrados[0].lng], 13);
-            }
         };
-        sugerenciasUl.appendChild(li);
+        listaSug.appendChild(li);
     });
 }
 
-async function buscarDireccion() {
-    const calle = document.getElementById('input-direccion').value;
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&limit=1&addressdetails=1`;
-    try {
-        const r = await fetch(url);
-        const data = await r.json();
-        if (data.length > 0) {
-            const addr = data[0].address;
-            const ciudad = addr.city || addr.town || addr.village || "Desconocida";
-            const pais = addr.country || "";
-            localidadDetectada = `${ciudad.toUpperCase()}, ${pais.toUpperCase()}`;
-            const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-            mapaSel.setView(latlng, 17);
-            if (marcadorSel) marcadorSel.setLatLng(latlng);
-            else marcadorSel = L.marker(latlng, {draggable: true}).addTo(mapaSel);
-        }
-    } catch(e) { console.error(e); }
-}
-
-async function guardarSitio() {
-    const nombre = document.getElementById('nombre').value;
-    const desc = document.getElementById('descripcion').value;
-    const checks = document.querySelectorAll('.cat-check:checked');
-    const caracteristicas = Array.from(checks).map(c => c.value);
-    if (!nombre || !marcadorSel) return Swal.fire('Faltan datos');
-    const datos = {
-        nombre, descripcion: desc, caracteristicas,
-        localidad: localidadDetectada,
-        lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng
-    };
-    const r = await fetch('/api/sitios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datos)
-    });
-    if (r.ok) location.reload();
+function toggleCiudad(el) {
+    const list = el.nextElementSibling;
+    list.style.display = list.style.display === 'grid' ? 'none' : 'grid';
 }
 
 function alternarVista() {
-    const mCont = document.getElementById('contenedor-mapa-pro'), l = document.getElementById('vista-lista');
-    const esMapa = mCont.style.display !== 'none';
-    mCont.style.display = esMapa ? 'none' : 'flex';
-    l.style.display = esMapa ? 'block' : 'none';
-    document.getElementById('btn-vista').innerText = esMapa ? '🗺️ Ver Mapa' : '📋 Ver Lista';
-}
-
-function abrirFormulario() {
-    document.getElementById('modal-anadir').style.display = 'flex';
-    if (!mapaSel) {
-        mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([40.4167, -3.7033], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaSel);
-        mapaSel.on('click', (e) => { 
-            if (marcadorSel) marcadorSel.setLatLng(e.latlng);
-            else marcadorSel = L.marker(e.latlng, {draggable: true}).addTo(mapaSel);
-        });
-    }
-    setTimeout(() => mapaSel.invalidateSize(), 300);
-}
-
-function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
-
-function cargarResultados(f) {
-    document.getElementById('pantalla-inicio').style.display = 'none';
-    document.getElementById('pantalla-resultados').style.display = 'flex';
-    initMap();
-    let res = f ? locales.filter(l => l.caracteristicas.includes(f)) : locales;
-    setTimeout(() => { mapa.invalidateSize(); mostrarSitios(res); }, 400);
+    const map = document.getElementById('contenedor-mapa-pro'), list = document.getElementById('vista-lista');
+    const isMap = map.style.display !== 'none';
+    map.style.display = isMap ? 'none' : 'flex';
+    list.style.display = isMap ? 'block' : 'none';
 }
 
 function buscarDesdeInicio() {
-    const t = document.getElementById('input-inicio').value;
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
-    initMap();
-    setTimeout(() => {
-        mapa.invalidateSize();
-        const res = locales.filter(l => l.nombre.toLowerCase().includes(t.toLowerCase()));
-        mostrarSitios(res);
-    }, 400);
-}
-
-function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
-function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
-function aplicarFiltrosMultiples() {
-    const checks = document.querySelectorAll('.filtro-check:checked');
-    const f = Array.from(checks).map(c => c.value);
-    const res = f.length === 0 ? locales : locales.filter(s => f.every(val => s.caracteristicas.includes(val)));
-    mostrarSitios(res);
-    cerrarModalFiltros();
+    if (!mapa) {
+        mapa = L.map('mapa').setView([40.41, -3.70], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+    }
+    mostrarSitios(locales);
 }
 
 window.onload = cargarSitios;

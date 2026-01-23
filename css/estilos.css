@@ -7,65 +7,33 @@
 
 body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg); }
 
-/* ✨ PANTALLA CARGA */
-#loading-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: white; display: flex; flex-direction: column; 
-    justify-content: center; align-items: center; z-index: 100001;
-}
-.spinner {
-    width: 60px; height: 60px; border: 6px solid var(--teal-light);
-    border-top: 6px solid var(--teal); border-radius: 50%; animation: spin 1s linear infinite;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* Pantalla Carga */
+#loading-overlay { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; }
+.spinner { width: 50px; height: 50px; border: 5px solid var(--teal-light); border-top-color: var(--teal); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* ✨ BUSCADOR DE ZONA */
-.buscador-zona-wrapper {
-    background: white; padding: 15px 20px; position: sticky; top: 0; z-index: 1000;
-}
-#inputBuscadorZona {
-    width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--teal-light); outline: none;
-}
-.sugerencias-lista {
-    list-style: none; padding: 0; margin: 5px 0; background: white; border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: absolute; width: calc(100% - 40px); z-index: 1001;
-}
-.sugerencias-lista li { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: 600; color: var(--teal); }
+/* Inicio */
+#pantalla-inicio { display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+.buscador-inicio-wrapper { background: white; border-radius: 50px; padding: 10px; display: flex; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: 20px 0; }
+#input-inicio { flex: 1; border: none; outline: none; padding: 0 15px; }
+.grid-categorias { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; }
+.boton-cat { background: white; border: none; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; }
+.boton-anadir-home { margin-top: 20px; background: var(--coral); color: white; border: none; padding: 15px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; }
 
-/* ✨ ACORDEÓN DE CIUDAD */
-.contenedor-ciudad { margin-bottom: 15px; }
-.header-ciudad {
-    background: white; padding: 20px; border-radius: 20px; border-left: 8px solid var(--coral);
-    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05); font-weight: 800; color: var(--teal);
-}
-.contador-pines { background: var(--teal-light); color: var(--teal); padding: 4px 10px; border-radius: 8px; font-size: 11px; }
+/* Acordeón de Ciudad */
+.contenedor-ciudad { margin-bottom: 15px; width: 100%; }
+.header-ciudad { background: white; padding: 20px; border-radius: 20px; border-left: 8px solid var(--coral); display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.05); font-weight: 800; color: var(--teal); }
+.lista-pines-ciudad { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; padding: 20px; }
 
-/* ✨ GRID DE TARJETAS DENTRO DE CIUDAD */
-.lista-pines-ciudad {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 15px; padding: 20px; background: #fffdfc; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
-}
-.item-lista {
-    background: white; border-radius: 20px; padding: 20px; border: 1px solid #eee;
-    border-top: 5px solid var(--teal); box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.3s;
-}
-.item-lista:hover { transform: translateY(-5px); }
-
-/* ✨ MODALES Y OTROS */
-#modal-anadir, .modal-personalizado {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 99999;
-    align-items: center; justify-content: center;
-}
-.contenido-modal { background: white; padding: 25px; border-radius: 30px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
-#mapa-seleccion { height: 180px; border-radius: 20px; margin: 10px 0; }
-.btn-principal { width: 100%; background: var(--coral); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; }
-.btn-secundario { width: 100%; background: #eee; border: none; padding: 12px; border-radius: 15px; margin-top: 8px; cursor: pointer; }
-
-/* REUTILIZABLES */
+/* Tarjeta Individual */
+.item-lista { background: white; border-radius: 20px; padding: 20px; border: 1px solid #eee; border-top: 5px solid var(--teal); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
 .tag-accesibilidad { background: var(--teal-light); color: var(--teal); padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin: 2px; display: inline-block; }
+
+/* Buscador de Zona */
+.buscador-zona-wrapper { background: white; padding: 15px; position: sticky; top: 0; z-index: 1000; }
+#inputBuscadorZona { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--teal-light); outline: none; }
+.sugerencias-lista { list-style: none; padding: 0; margin: 5px 0; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: absolute; width: calc(100% - 30px); z-index: 1001; }
+.sugerencias-lista li { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; color: var(--teal); font-weight: 600; }
+
 #pantalla-resultados { display: none; flex-direction: column; height: 100vh; }
-#contenedor-mapa-pro { position: relative; flex: 1; display: flex; flex-direction: column; }
-#mapa { flex: 1; }
-#vista-lista { flex: 1; overflow-y: auto; padding: 20px; background: #fdfdfd; }
+#vista-lista { flex: 1; overflow-y: auto; padding: 20px; }
