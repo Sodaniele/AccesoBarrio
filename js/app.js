@@ -3,7 +3,6 @@ let mapaSel, marcadorSel;
 let editandoId = null;
 let localidadDetectada = "";
 
-// Cargar Datos
 async function cargarSitios() {
     try {
         const r = await fetch('/api/sitios');
@@ -13,7 +12,6 @@ async function cargarSitios() {
     } catch(e) { console.error(e); }
 }
 
-// Iconos personalizados
 const crearIcono = (emoji, color) => L.divIcon({
     html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
     className: '', iconSize: [35, 35], iconAnchor: [17, 35]
@@ -34,17 +32,15 @@ function initMap() {
     mapa.locate({setView: true, maxZoom: 15});
 }
 
-// ✨ FUNCIÓN MODIFICADA: Ahora agrupa por CIUDAD
+// ✨ FUNCIÓN MAESTRA: Agrupa por Ciudad y crea Acordeones
 function mostrarSitios(lista) {
-    if (mapa) {
-        marcadores.forEach(m => mapa.removeLayer(m));
-    }
+    if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
     const divContenedor = document.getElementById('contenedor-items-lista');
     if (!divContenedor) return;
     divContenedor.innerHTML = '';
 
-    // 1. Agrupamos los sitios por localidad
+    // Agrupamiento
     const grupos = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
@@ -52,12 +48,10 @@ function mostrarSitios(lista) {
         return acc;
     }, {});
 
-    // 2. Creamos una tarjeta por cada CIUDAD
-    Object.keys(grupos).forEach(ciudad => {
+    // Renderizado por Ciudad
+    Object.keys(grupos).sort().forEach(ciudad => {
         const contenedorCiudad = document.createElement('div');
         contenedorCiudad.className = 'contenedor-ciudad';
-
-        // Cabecera de la ciudad (La tarjeta principal)
         contenedorCiudad.innerHTML = `
             <div class="header-ciudad" onclick="toggleCiudad(this)">
                 <span>📍 ${ciudad}</span>
@@ -68,7 +62,6 @@ function mostrarSitios(lista) {
 
         const contenedorPines = contenedorCiudad.querySelector('.lista-pines-ciudad');
 
-        // 3. Metemos los sitios dentro de esa ciudad
         grupos[ciudad].forEach(s => {
             const esPinProtegido = s.nombre === "Familia Daniele";
             let iconoAUsar = s.caracteristicas.includes('Rampa') ? iconos.movilidad : iconos.default;
@@ -82,27 +75,57 @@ function mostrarSitios(lista) {
             const card = document.createElement('div');
             card.className = 'item-lista';
             card.innerHTML = `
-                <div>
+                <div style="flex:1">
                     <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
                     <p style="font-size:12px; color:#666;">${s.descripcion || ''}</p>
-                </div>
-                <div style="margin-top:10px;">
-                    ${s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('')}
+                    <div style="margin-top:8px;">
+                        ${s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('')}
+                    </div>
                 </div>
             `;
             contenedorPines.appendChild(card);
         });
-
         divContenedor.appendChild(contenedorCiudad);
     });
 }
 
-// ✨ Nueva función para abrir/cerrar ciudades
 function toggleCiudad(elemento) {
     const lista = elemento.nextElementSibling;
-    const estaAbierto = lista.style.display === 'grid';
-    lista.style.display = estaAbierto ? 'none' : 'grid';
+    const abierto = lista.style.display === 'grid';
+    lista.style.display = abierto ? 'none' : 'grid';
     elemento.classList.toggle('ciudad-activa');
+}
+
+// ✨ BUSCADOR: Sugerencias reales basadas en tus datos
+function filtrarPorZona() {
+    const input = document.getElementById('inputBuscadorZona');
+    const texto = input.value.toUpperCase();
+    const sugerenciasUl = document.getElementById('sugerenciasZona');
+    sugerenciasUl.innerHTML = '';
+
+    if (texto.length < 1) { mostrarSitios(locales); return; }
+
+    const zonas = [...new Set(locales.map(l => l.localidad || 'UBICACIÓN GENERAL'))];
+    const coincidencias = zonas.filter(z => z.includes(texto));
+
+    coincidencias.forEach(z => {
+        const li = document.createElement('li');
+        li.textContent = z;
+        li.onclick = () => {
+            input.value = z;
+            sugerenciasUl.innerHTML = '';
+            const filtrados = locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === z);
+            mostrarSitios(filtrados);
+            // Abrir automáticamente la ciudad filtrada
+            const header = document.querySelector('.header-ciudad');
+            if (header) toggleCiudad(header);
+            if(filtrados.length > 0) {
+                alternarVista();
+                mapa.flyTo([filtrados[0].lat, filtrados[0].lng], 13);
+            }
+        };
+        sugerenciasUl.appendChild(li);
+    });
 }
 
 async function buscarDireccion() {
@@ -130,13 +153,11 @@ async function guardarSitio() {
     const checks = document.querySelectorAll('.cat-check:checked');
     const caracteristicas = Array.from(checks).map(c => c.value);
     if (!nombre || !marcadorSel) return Swal.fire('Faltan datos');
-
     const datos = {
         nombre, descripcion: desc, caracteristicas,
         localidad: localidadDetectada,
         lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng
     };
-
     const r = await fetch('/api/sitios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,41 +165,6 @@ async function guardarSitio() {
     });
     if (r.ok) location.reload();
 }
-
-// MODIFICADA: Ahora abre la ciudad automáticamente al buscarla
-function filtrarPorZona() {
-    const texto = document.getElementById('inputBuscadorZona').value.toUpperCase();
-    const sugerenciasUl = document.getElementById('sugerenciasZona');
-    sugerenciasUl.innerHTML = '';
-    if (texto.length < 1) { mostrarSitios(locales); return; }
-    
-    const zonas = [...new Set(locales.map(l => l.localidad).filter(l => l))];
-    zonas.filter(z => z.includes(texto)).forEach(z => {
-        const li = document.createElement('li');
-        li.textContent = z;
-        li.onclick = () => {
-            document.getElementById('inputBuscadorZona').value = z;
-            sugerenciasUl.innerHTML = '';
-            
-            // Filtramos los locales de esa ciudad
-            const filtrados = locales.filter(l => l.localidad === z);
-            mostrarSitios(filtrados);
-
-            // AUTO-ABRIR la tarjeta de la ciudad
-            const header = document.querySelector('.header-ciudad');
-            if (header) toggleCiudad(header);
-            
-            // Volar en el mapa
-            if(filtrados.length > 0) {
-                alternarVista();
-                mapa.flyTo([filtrados[0].lat, filtrados[0].lng], 13);
-            }
-        };
-        sugerenciasUl.appendChild(li);
-    });
-}
-
-// ... (El resto de tus funciones: alternarVista, abrirFormulario, cerrarModal, etc. se mantienen igual) ...
 
 function alternarVista() {
     const mCont = document.getElementById('contenedor-mapa-pro'), l = document.getElementById('vista-lista');
@@ -231,18 +217,6 @@ function aplicarFiltrosMultiples() {
     const res = f.length === 0 ? locales : locales.filter(s => f.every(val => s.caracteristicas.includes(val)));
     mostrarSitios(res);
     cerrarModalFiltros();
-}
-
-function toggleMenuAccesibilidad() { document.getElementById('menu-accesibilidad').classList.toggle('menu-oculto'); }
-function ajustarTexto(f) {
-    const r = document.documentElement;
-    let s = parseFloat(window.getComputedStyle(r).fontSize);
-    r.style.fontSize = (s * f) + 'px';
-}
-function restablecerAccesibilidad() { document.documentElement.style.fontSize = '16px'; }
-function toggleVoz() {
-    vozActiva = !vozActiva;
-    document.getElementById('btn-voz').innerText = vozActiva ? '🔊' : '🔇';
 }
 
 window.onload = cargarSitios;

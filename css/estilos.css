@@ -5,322 +5,67 @@
     --teal-light: #e0f2f1;
 }
 
-/* ✨ PANTALLA DE CARGA (Loader) ✨ */
+body { font-family: 'Poppins', sans-serif; margin: 0; background-color: var(--bg); }
+
+/* ✨ PANTALLA CARGA */
 #loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 100001;
-    font-family: 'Poppins', sans-serif;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: white; display: flex; flex-direction: column; 
+    justify-content: center; align-items: center; z-index: 100001;
 }
-
 .spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid var(--teal-light);
-    border-top: 6px solid var(--teal);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    width: 60px; height: 60px; border: 6px solid var(--teal-light);
+    border-top: 6px solid var(--teal); border-radius: 50%; animation: spin 1s linear infinite;
 }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* 📱 AJUSTES GLOBALES */
-body { 
-    font-family: 'Poppins', sans-serif; 
-    margin: 0; 
-    background-color: var(--bg);
-    background-image: radial-gradient(var(--teal) 0.5px, transparent 0.5px);
-    background-size: 20px 20px;
-    min-height: 100vh; 
-    overflow-x: hidden;
-    overflow-y: auto; 
-    transition: filter 0.3s, background 0.3s; 
-}
-
-/* 🏠 PANTALLA INICIO */
-#pantalla-inicio {
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: flex-start;
-    padding: 40px 20px; 
-    box-sizing: border-box; 
-    min-height: 100vh;
-}
-
-h1 { 
-    font-size: clamp(2.2rem, 8vw, 3.5rem); 
-    color: var(--teal); 
-    margin: 0; 
-    font-weight: 800; 
-    line-height: 1.1;
-}
-
-p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
-
-.buscador-inicio-wrapper {
-    background: white; border-radius: 50px; padding: 6px; display: flex;
-    width: 100%; max-width: 450px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-#input-inicio { flex: 1; border: none; padding: 0 20px; outline: none; font-size: 16px; }
-.buscador-inicio-wrapper button { background: var(--coral); border: none; border-radius: 50%; width: 45px; height: 45px; color: white; cursor: pointer; }
-
-.grid-categorias { 
-    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-    width: 100%; max-width: 450px; 
-}
-.boton-cat {
-    background: white; border: none; border-radius: 25px; 
-    height: clamp(130px, 20vh, 160px); 
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.06); cursor: pointer; transition: 0.3s;
-}
-.boton-cat .emoji { font-size: 50px; }
-.boton-cat .txt { font-weight: 700; color: var(--teal); font-size: 16px; }
-
-.boton-anadir-home {
-    margin-top: 30px; background: var(--coral); color: white; border: none;
-    padding: 15px 35px; border-radius: 50px; font-weight: 700; font-size: 18px;
-    cursor: pointer; box-shadow: 0 10px 25px rgba(255,126,107,0.3);
-}
-
-/* 📝 MODALES */
-#modal-anadir, .modal-personalizado {
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    background: rgba(0, 109, 119, 0.3); 
-    backdrop-filter: blur(8px); 
-    z-index: 99999;
-    align-items: center; 
-    justify-content: center;
-    padding: 20px; 
-    box-sizing: border-box;
-}
-
-.contenido-modal {
-    background: white; width: 100%; max-width: 450px; padding: 25px;
-    border-radius: 35px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    max-height: 90vh; overflow-y: auto; box-sizing: border-box;
-}
-
-.btn-principal {
-    width: 100%; background: var(--coral); color: white; border: none;
-    padding: 16px; border-radius: 18px; font-weight: 800; font-size: 16px;
-    cursor: pointer; box-shadow: 0 8px 20px rgba(255,126,107,0.3);
-    margin-top: 15px; transition: 0.2s;
-}
-
-.btn-secundario {
-    width: 100%; background: transparent; border: 2px solid #eee; color: #888;
-    padding: 14px; border-radius: 18px; font-weight: 600; font-size: 14px;
-    cursor: pointer; margin-top: 10px;
-}
-
-.grid-checks-pro { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin: 15px 0; }
-.grid-checks-pro label { 
-    background: #fdfdfd; border: 1px solid #eee; padding: 10px; border-radius: 12px; 
-    display: flex; flex-direction: column; align-items: center; font-size: 11px; 
-    font-weight: 600; cursor: pointer; transition: 0.2s;
-}
-.grid-checks-pro label:has(input:checked) { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
-
-#mapa-seleccion { height: 150px; border-radius: 20px; border: 2px solid #eee; margin: 10px 0; }
-input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; border: 2px solid #eee; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
-
-/* 🗺️ MAPA Y RESULTADOS */
-#pantalla-resultados { display: none; flex-direction: column; height: 100vh; }
-.barra-superior-pro { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: white; border-bottom: 1px solid #eee; }
-
-.btn-circular { background: #f0f0f0; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; }
-.btn-lista-pill { 
-    padding: 10px 18px; border-radius: 20px; border: none; font-weight: 700; 
-    font-family: inherit; cursor: pointer; font-size: 13px; transition: 0.2s;
-}
-
-#contenedor-mapa-pro { position: relative; flex: 1; display: flex; flex-direction: column; }
-#mapa { flex: 1; width: 100%; }
-
-/* ✨ BUSCADOR DE ZONA ✨ */
+/* ✨ BUSCADOR DE ZONA */
 .buscador-zona-wrapper {
-    background: white; 
-    padding: 15px 20px; 
-    position: sticky; 
-    top: 0; 
-    z-index: 1000; 
-    border-bottom: 1px solid #eee;
+    background: white; padding: 15px 20px; position: sticky; top: 0; z-index: 1000;
 }
-
 #inputBuscadorZona {
-    width: 100%; 
-    padding: 12px 15px; 
-    border-radius: 15px; 
-    border: 2px solid var(--teal-light); 
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.3s;
+    width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--teal-light); outline: none;
 }
-
-#inputBuscadorZona:focus { border-color: var(--teal); }
-
 .sugerencias-lista {
-    list-style: none;
-    padding: 0;
-    margin: 5px 0 0 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    position: absolute;
-    width: calc(100% - 40px);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1001;
+    list-style: none; padding: 0; margin: 5px 0; background: white; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: absolute; width: calc(100% - 40px); z-index: 1001;
 }
+.sugerencias-lista li { padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; font-weight: 600; color: var(--teal); }
 
-.sugerencias-lista li {
-    padding: 12px 15px;
-    border-bottom: 1px solid #f9f9f9;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--teal);
-}
-
-.sugerencias-lista li:hover { background: var(--teal-light); }
-
-/* 📋 VISTA LISTA - ESTRUCTURA ACORDEÓN */
-#vista-lista { 
-    flex: 1; 
-    overflow-y: auto; 
-    display: none; 
-    background: #fdfdfd; 
-}
-
-#contenedor-items-lista { 
-    padding: 25px; 
-}
-
-/* ✨ TARJETA CABECERA DE CIUDAD ✨ */
-.contenedor-ciudad {
-    margin-bottom: 20px;
-}
-
+/* ✨ ACORDEÓN DE CIUDAD */
+.contenedor-ciudad { margin-bottom: 15px; }
 .header-ciudad {
-    background: white;
-    padding: 20px 25px;
-    border-radius: 20px;
-    border-left: 8px solid var(--coral); /* Color Coral para diferenciar Ciudades */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-    transition: all 0.3s ease;
-    font-weight: 800;
-    color: var(--teal);
+    background: white; padding: 20px; border-radius: 20px; border-left: 8px solid var(--coral);
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05); font-weight: 800; color: var(--teal);
 }
+.contador-pines { background: var(--teal-light); color: var(--teal); padding: 4px 10px; border-radius: 8px; font-size: 11px; }
 
-.header-ciudad:hover {
-    background: #fffafa;
-    transform: scale(1.02);
-}
-
-/* Efecto cuando el acordeón está abierto */
-.header-ciudad.ciudad-activa {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    background: var(--bg);
-}
-
-.contador-pines {
-    background: var(--teal-light);
-    color: var(--teal);
-    padding: 5px 12px;
-    border-radius: 10px;
-    font-size: 12px;
-}
-
-/* ✨ GRILLA DE SITIOS DENTRO DE CIUDAD ✨ */
+/* ✨ GRID DE TARJETAS DENTRO DE CIUDAD */
 .lista-pines-ciudad {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 15px;
-    padding: 20px;
-    background: white;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.03);
-    border: 1px solid #eee;
-    border-top: none;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px; padding: 20px; background: #fffdfc; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
 }
-
-/* ✨ DISEÑO DE LA TARJETA DE SITIO INDIVIDUAL ✨ */
-.item-lista { 
-    background: white; 
-    border-radius: 18px; 
-    padding: 20px; 
-    border: 1px solid #eee; 
-    border-top: 5px solid var(--teal); /* Teal para los Sitios */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.3s ease;
+.item-lista {
+    background: white; border-radius: 20px; padding: 20px; border: 1px solid #eee;
+    border-top: 5px solid var(--teal); box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.3s;
 }
+.item-lista:hover { transform: translateY(-5px); }
 
-.item-lista:hover {
-    transform: translateY(-5px);
+/* ✨ MODALES Y OTROS */
+#modal-anadir, .modal-personalizado {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 99999;
+    align-items: center; justify-content: center;
 }
+.contenido-modal { background: white; padding: 25px; border-radius: 30px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+#mapa-seleccion { height: 180px; border-radius: 20px; margin: 10px 0; }
+.btn-principal { width: 100%; background: var(--coral); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 800; cursor: pointer; }
+.btn-secundario { width: 100%; background: #eee; border: none; padding: 12px; border-radius: 15px; margin-top: 8px; cursor: pointer; }
 
-.tag-accesibilidad {
-    background: var(--teal-light); 
-    color: var(--teal); 
-    padding: 4px 10px;
-    border-radius: 15px; 
-    font-size: 10px; 
-    font-weight: 700; 
-    border: 1px solid #b2dfdb;
-    display: inline-block; 
-    margin: 2px;
-}
-
-/* ✨ ETIQUETAS Y FIRMA */
-.firma-autor { text-align: center; padding: 20px 10px; width: 100%; }
-.firma-autor p { font-size: 11px !important; color: #999 !important; letter-spacing: 0.5px; font-weight: 600; margin: 0; text-transform: uppercase; }
-
-/* ♿ WIDGET ACCESIBILIDAD */
-#btn-accesibilidad-flotante {
-    position: fixed; bottom: 20px; left: 20px; z-index: 10000;
-    background: var(--teal); color: white; border: none; border-radius: 50%;
-    width: 55px; height: 55px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    display: flex; align-items: center; justify-content: center;
-}
-
-#menu-accesibilidad {
-    position: fixed; bottom: 85px; left: 20px; background: white; border-radius: 20px;
-    padding: 15px; width: 220px; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    display: flex; flex-direction: column; gap: 10px;
-}
-.menu-oculto { display: none !important; }
-
-/* ESTADOS */
-body.escala-grises { filter: grayscale(100%); }
-body.alto-contraste { background: #000 !important; color: #fff !important; }
-body.fuente-legible { font-family: Arial, sans-serif !important; }
-
-.swal2-container { z-index: 100002 !important; }
+/* REUTILIZABLES */
+.tag-accesibilidad { background: var(--teal-light); color: var(--teal); padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin: 2px; display: inline-block; }
+#pantalla-resultados { display: none; flex-direction: column; height: 100vh; }
+#contenedor-mapa-pro { position: relative; flex: 1; display: flex; flex-direction: column; }
+#mapa { flex: 1; }
+#vista-lista { flex: 1; overflow-y: auto; padding: 20px; background: #fdfdfd; }
