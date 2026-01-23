@@ -1,9 +1,8 @@
 let mapa, marcadores = [], locales = [], ptoSel = 5;
 let mapaSel, marcadorSel;
 let editandoId = null;
-let localidadDetectada = ""; // ✨ Nueva variable global
+let localidadDetectada = "";
 
-// Cargar Datos
 async function cargarSitios() {
     try {
         const r = await fetch('/api/sitios');
@@ -13,9 +12,8 @@ async function cargarSitios() {
     } catch(e) { console.error(e); }
 }
 
-// Iconos personalizados
 const crearIcono = (emoji, color) => L.divIcon({
-    html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white;">${emoji}</div>`,
+    html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
     className: '', iconSize: [35, 35], iconAnchor: [17, 35]
 });
 
@@ -27,11 +25,18 @@ const iconos = {
     default: crearIcono('📍', '#008080')
 };
 
+function initMap() {
+    if (mapa) return;
+    mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+    mapa.locate({setView: true, maxZoom: 15});
+}
+
 function mostrarSitios(lista) {
-    marcadores.forEach(m => mapa.removeLayer(m));
+    if (mapa) {
+        marcadores.forEach(m => mapa.removeLayer(m));
+    }
     marcadores = [];
-    
-    // ✨ Cambiamos al nuevo contenedor de items
     const divContenedor = document.getElementById('contenedor-items-lista');
     if (!divContenedor) return;
     divContenedor.innerHTML = '';
@@ -41,11 +46,11 @@ function mostrarSitios(lista) {
         let iconoAUsar = s.caracteristicas.includes('Rampa') ? iconos.movilidad : iconos.default;
         if (esPinProtegido) iconoAUsar = iconos.especial;
 
-        // Marcador Mapa
-        const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`<b>${s.nombre}</b>`);
-        marcadores.push(m);
+        if (mapa) {
+            const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`<b>${s.nombre}</b>`);
+            marcadores.push(m);
+        }
 
-        // TARJETA LISTA
         const card = document.createElement('div');
         card.className = 'item-lista';
         card.innerHTML = `
@@ -62,36 +67,35 @@ function mostrarSitios(lista) {
     });
 }
 
-// Buscar Localidad (Nominatim)
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&limit=1&addressdetails=1`;
-    
-    const r = await fetch(url);
-    const data = await r.json();
-    if (data.length > 0) {
-        const addr = data[0].address;
-        const ciudad = addr.city || addr.town || addr.village || "Desconocida";
-        const pais = addr.country || "";
-        localidadDetectada = `${ciudad.toUpperCase()}, ${pais.toUpperCase()}`;
-        
-        const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-        mapaSel.setView(latlng, 17);
-        if (marcadorSel) marcadorSel.setLatLng(latlng);
-        else marcadorSel = L.marker(latlng).addTo(mapaSel);
-    }
+    try {
+        const r = await fetch(url);
+        const data = await r.json();
+        if (data.length > 0) {
+            const addr = data[0].address;
+            const ciudad = addr.city || addr.town || addr.village || "Desconocida";
+            const pais = addr.country || "";
+            localidadDetectada = `${ciudad.toUpperCase()}, ${pais.toUpperCase()}`;
+            const latlng = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            mapaSel.setView(latlng, 17);
+            if (marcadorSel) marcadorSel.setLatLng(latlng);
+            else marcadorSel = L.marker(latlng, {draggable: true}).addTo(mapaSel);
+        }
+    } catch(e) { console.error(e); }
 }
 
-// Guardar con Localidad
 async function guardarSitio() {
     const nombre = document.getElementById('nombre').value;
     const desc = document.getElementById('descripcion').value;
     const checks = document.querySelectorAll('.cat-check:checked');
     const caracteristicas = Array.from(checks).map(c => c.value);
+    if (!nombre || !marcadorSel) return Swal.fire('Faltan datos');
 
     const datos = {
         nombre, descripcion: desc, caracteristicas,
-        localidad: localidadDetectada, // ✨ Se guarda CIUDAD, PAÍS
+        localidad: localidadDetectada,
         lat: marcadorSel.getLatLng().lat, lng: marcadorSel.getLatLng().lng
     };
 
@@ -103,14 +107,55 @@ async function guardarSitio() {
     if (r.ok) location.reload();
 }
 
-// Filtro por Zona
+// FUNCIONES DE VISTA Y BOTONES
+function alternarVista() {
+    const mCont = document.getElementById('contenedor-mapa-pro'), l = document.getElementById('vista-lista');
+    const esMapa = mCont.style.display !== 'none';
+    mCont.style.display = esMapa ? 'none' : 'flex';
+    l.style.display = esMapa ? 'block' : 'none';
+    document.getElementById('btn-vista').innerText = esMapa ? '🗺️ Ver Mapa' : '📋 Ver Lista';
+}
+
+function abrirFormulario() {
+    document.getElementById('modal-anadir').style.display = 'flex';
+    if (!mapaSel) {
+        mapaSel = L.map('mapa-seleccion', { zoomControl: false }).setView([40.4167, -3.7033], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapaSel);
+        mapaSel.on('click', (e) => { 
+            if (marcadorSel) marcadorSel.setLatLng(e.latlng);
+            else marcadorSel = L.marker(e.latlng, {draggable: true}).addTo(mapaSel);
+        });
+    }
+    setTimeout(() => mapaSel.invalidateSize(), 300);
+}
+
+function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
+
+function cargarResultados(f) {
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('pantalla-resultados').style.display = 'flex';
+    initMap();
+    let res = f ? locales.filter(l => l.caracteristicas.includes(f)) : locales;
+    setTimeout(() => { mapa.invalidateSize(); mostrarSitios(res); }, 400);
+}
+
+function buscarDesdeInicio() {
+    const t = document.getElementById('input-inicio').value;
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('pantalla-resultados').style.display = 'flex';
+    initMap();
+    setTimeout(() => {
+        mapa.invalidateSize();
+        const res = locales.filter(l => l.nombre.toLowerCase().includes(t.toLowerCase()));
+        mostrarSitios(res);
+    }, 400);
+}
+
 function filtrarPorZona() {
     const texto = document.getElementById('inputBuscadorZona').value.toUpperCase();
     const sugerenciasUl = document.getElementById('sugerenciasZona');
     sugerenciasUl.innerHTML = '';
-
     if (texto.length < 1) { mostrarSitios(locales); return; }
-
     const zonas = [...new Set(locales.map(l => l.localidad).filter(l => l))];
     zonas.filter(z => z.includes(texto)).forEach(z => {
         const li = document.createElement('li');
@@ -124,6 +169,27 @@ function filtrarPorZona() {
     });
 }
 
-// Inicializar y utilidades (Mantenés tus funciones de alternarVista, initMap, etc.)
-// ...
+function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
+function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
+function aplicarFiltrosMultiples() {
+    const checks = document.querySelectorAll('.filtro-check:checked');
+    const f = Array.from(checks).map(c => c.value);
+    const res = f.length === 0 ? locales : locales.filter(s => f.every(val => s.caracteristicas.includes(val)));
+    mostrarSitios(res);
+    cerrarModalFiltros();
+}
+
+// Accesibilidad
+function toggleMenuAccesibilidad() { document.getElementById('menu-accesibilidad').classList.toggle('menu-oculto'); }
+function ajustarTexto(f) {
+    const r = document.documentElement;
+    let s = parseFloat(window.getComputedStyle(r).fontSize);
+    r.style.fontSize = (s * f) + 'px';
+}
+function restablecerAccesibilidad() { document.documentElement.style.fontSize = '16px'; }
+function toggleVoz() {
+    vozActiva = !vozActiva;
+    document.getElementById('btn-voz').innerText = vozActiva ? '🔊' : '🔇';
+}
+
 window.onload = cargarSitios;
