@@ -35,11 +35,15 @@ function initMap() {
 }
 
 function mostrarSitios(lista) {
+    // 1. Limpiar mapa
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
+
+    // 2. Limpiar lista
     const divContenedor = document.getElementById('contenedor-items-lista');
     if (divContenedor) divContenedor.innerHTML = '';
 
+    // 3. Agrupar por localidad
     const grupos = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
@@ -47,26 +51,75 @@ function mostrarSitios(lista) {
         return acc;
     }, {});
 
+    // 4. Renderizar
     Object.keys(grupos).sort().forEach(ciudad => {
-        // En lista
+        
+        // --- A. RENDERIZADO EN VISTA DE LISTA ---
         if (divContenedor) {
-            const card = document.createElement('div');
-            card.className = 'item-lista';
-            card.innerHTML = `<h3>${ciudad}</h3><p>${grupos[ciudad].length} sitios registrados</p>`;
-            divContenedor.appendChild(card);
+            // Creamos un contenedor para la ciudad
+            const seccionCiudad = document.createElement('div');
+            seccionCiudad.style.marginBottom = "20px";
+            
+            // Título de la ciudad
+            seccionCiudad.innerHTML = `
+                <h3 style="color:#006D77; margin-bottom:10px; border-bottom:2px solid #e0f2f1; padding-bottom:5px;">
+                    📍 ${ciudad} <span style="font-size:12px; color:#666; font-weight:400;">(${grupos[ciudad].length})</span>
+                </h3>
+            `;
+
+            // Añadimos las tarjetas de los sitios de esa ciudad
+            grupos[ciudad].forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'item-lista'; // Usa tu estilo CSS existente
+                
+                // Generamos tags para la lista
+                const tagsLista = s.caracteristicas.map(c => 
+                    `<span class="tag-accesibilidad">${c}</span>`
+                ).join('');
+
+                card.innerHTML = `
+                    <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
+                    <p style="font-size:12px; color:#666; margin:5px 0;">${s.descripcion || 'Sin descripción'}</p>
+                    <div style="margin-top:5px;">${tagsLista}</div>
+                `;
+                seccionCiudad.appendChild(card);
+            });
+
+            divContenedor.appendChild(seccionCiudad);
         }
         
-        // En mapa
+        // --- B. RENDERIZADO EN EL MAPA ---
         grupos[ciudad].forEach(s => {
+            // Selección de icono (Tu lógica original mejorada)
             let icono = iconos.default;
-            if (s.caracteristicas.includes('Rampa')) icono = iconos.movilidad;
-            if (s.caracteristicas.includes('Calma')) icono = iconos.calma;
-            if (s.caracteristicas.includes('Braille') || s.caracteristicas.includes('Podotactil')) icono = iconos.visual;
-            if (s.caracteristicas.includes('Pictogramas')) icono = iconos.cognitiva;
-            if (s.caracteristicas.includes('LSA') || s.caracteristicas.includes('Aro')) icono = iconos.auditiva;
+            if (s.caracteristicas.includes('Rampa') || s.caracteristicas.includes('Baño')) icono = iconos.movilidad;
+            else if (s.caracteristicas.includes('Calma')) icono = iconos.calma;
+            else if (s.caracteristicas.includes('Braille') || s.caracteristicas.includes('Podotactil')) icono = iconos.visual;
+            else if (s.caracteristicas.includes('Pictogramas')) icono = iconos.cognitiva;
+            else if (s.caracteristicas.includes('LSA') || s.caracteristicas.includes('Aro')) icono = iconos.auditiva;
+            else if (s.caracteristicas.includes('Perro')) icono = iconos.perro || iconos.visual;
             
             if (mapa) {
-                const m = L.marker([s.lat, s.lng], { icon: icono }).addTo(mapa).bindPopup(`<b>${s.nombre}</b><br>${s.descripcion}`);
+                // Generamos tags con estilos en línea para asegurar que se vean bien en el popup
+                const tagsPopup = s.caracteristicas.map(c => 
+                    `<span style="background:#e0f2f1; color:#006d77; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; margin-right:3px; display:inline-block; border:1px solid #b2dfdb;">${c}</span>`
+                ).join('');
+
+                // Diseño del Globo (Popup) Completo
+                const contenidoPopup = `
+                    <div style="font-family: 'Poppins', sans-serif; min-width: 200px;">
+                        <h3 style="margin:0 0 5px 0; color:#006d77; font-size:15px; font-weight:800;">${s.nombre}</h3>
+                        <p style="font-size:11px; color:#555; margin:0 0 8px 0; line-height:1.4;">
+                            ${s.descripcion || 'Sin descripción.'}
+                        </p>
+                        <div style="margin-bottom:8px;">${tagsPopup}</div>
+                        <p style="font-size:9px; color:#999; margin:0; text-transform:uppercase;">📍 ${s.localidad || ciudad}</p>
+                    </div>
+                `;
+
+                const m = L.marker([s.lat, s.lng], { icon: icono })
+                           .addTo(mapa)
+                           .bindPopup(contenidoPopup);
                 marcadores.push(m);
             }
         });
