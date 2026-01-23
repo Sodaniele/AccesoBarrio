@@ -27,38 +27,37 @@
     <button id="btn-voz" onclick="toggleVoz()">🔇</button>
 
     <main id="pantalla-inicio">
-        <h1>AccesoBarrio 🌍</h1>
-        <p>¿Qué necesitas saber hoy?</p>
-        
-        <div class="buscador-inicio-wrapper">
-            <input type="text" id="input-inicio" placeholder="Busca un sitio (ej: Bar Pepe)..." onkeypress="if(event.key === 'Enter') buscarDesdeInicio()">
-            <button onclick="buscarDesdeInicio()">🔍</button>
-        </div>
+    <h1>AccesoBarrio 🌍</h1>
+    <p>¿Qué necesitas saber hoy?</p>
+    
+    <div class="buscador-inicio-wrapper">
+        <input type="text" id="input-inicio" placeholder="Busca un sitio (ej: Bar Pepe)..." onkeypress="if(event.key === 'Enter') buscarDesdeInicio()">
+        <button onclick="buscarDesdeInicio()">🔍</button>
+    </div>
 
-        <nav class="grid-categorias">
-            <button class="boton-cat cat-movilidad" onclick="cargarResultados('Rampa')">
-                <span class="emoji">👂</span><span class="txt">Auditiva</span>
-            </button>
-            <button class="boton-cat cat-movilidad" onclick="cargarResultados('Rampa')">
-                <span class="emoji">♿</span><span class="txt">Motora</span>
-            </button>
-            <button class="boton-cat cat-calma" onclick="cargarResultados('Calma')">
-                <span class="emoji">🧠</span><span class="txt">Cognitiva</span>
-            </button>
-            <button class="boton-cat cat-visual" onclick="cargarResultados('Braille')">
-                <span class="emoji">👁️</span><span class="txt">Visual</span>
-            </button>
-            <button class="boton-cat cat-todo" onclick="cargarResultados(null)">
-                <span class="emoji">🗺️</span><span class="txt">Todo</span>
-            </button>
-        </nav>
+    <div class="filtros-rapidos">
+        <button class="chip-todo" onclick="cargarResultados(null)">
+            <span>🗺️ Ver todo el mapa</span>
+        </button>
+    </div>
 
-        <button class="boton-anadir-home" onclick="abrirFormulario()">+ Añadir Sitio</button>
+    <nav class="grid-categorias">
+        <button class="boton-cat cat-auditiva" onclick="cargarResultados('Auditiva')">
+            <span class="emoji">👂</span><span class="txt">Auditiva</span>
+        </button>
+        <button class="boton-cat cat-motora" onclick="cargarResultados('Motora')">
+            <span class="emoji">♿</span><span class="txt">Motora</span>
+        </button>
+        <button class="boton-cat cat-cognitiva" onclick="cargarResultados('Cognitiva')">
+            <span class="emoji">🧠</span><span class="txt">Cognitiva</span>
+        </button>
+        <button class="boton-cat cat-visual" onclick="cargarResultados('Visual')">
+            <span class="emoji">👁️</span><span class="txt">Visual</span>
+        </button>
+    </nav>
 
-        <div class="firma-autor">
-            <p>© 2026 Sofía Fabiana Daniele | by Proyecto25</p>
-        </div>
-    </main>
+    <button class="boton-anadir-home" onclick="abrirFormulario()">+ Añadir Sitio</button>
+</main>
 
     <div id="pantalla-resultados">
         <div class="barra-superior-pro">
