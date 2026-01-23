@@ -25,15 +25,23 @@
             <button onclick="buscarDesdeInicio()">🔍</button>
         </div>
         <nav class="grid-categorias">
-            <button class="boton-cat" onclick="cargarResultados('Rampa')"><span class="emoji">♿</span><span class="txt">Movilidad</span></button>
-            <button class="boton-cat" onclick="cargarResultados('Calma')"><span class="emoji">🧠</span><span class="txt">Calma</span></button>
-            <button class="boton-cat" onclick="cargarResultados('Braille')"><span class="emoji">👁️</span><span class="txt">Visual</span></button>
-            <button class="boton-cat" onclick="cargarResultados(null)"><span class="emoji">🗺️</span><span class="txt">Todo</span></button>
+            <button class="boton-cat" onclick="cargarResultados('Rampa')">
+                <span class="emoji">♿</span><span class="txt">Movilidad</span>
+            </button>
+            <button class="boton-cat" onclick="cargarResultados('Calma')">
+                <span class="emoji">🧠</span><span class="txt">Calma</span>
+            </button>
+            <button class="boton-cat" onclick="cargarResultados('Braille')">
+                <span class="emoji">👁️</span><span class="txt">Visual</span>
+            </button>
+            <button class="boton-cat" onclick="cargarResultados(null)">
+                <span class="emoji">🗺️</span><span class="txt">Todo</span>
+            </button>
         </nav>
         <button class="boton-anadir-home" onclick="abrirFormulario()">+ Añadir Sitio</button>
     </main>
 
-    <div id="pantalla-resultados">
+    <div id="pantalla-resultados" style="display: none;">
         <div class="barra-superior-pro">
             <button onclick="location.reload()" class="btn-circular">⬅</button>
             <div style="display: flex; gap: 8px;">
@@ -51,15 +59,45 @@
 
         <div id="vista-lista" style="display: none;">
             <div class="buscador-zona-wrapper">
-                <input type="text" id="inputBuscadorZona" placeholder="🔍 Buscar Ciudad (Madrid, San Nicolas...)" onkeyup="filtrarPorZona()">
-                <ul id="sugerenciasZona" class="sugerencias-lista"></ul>
+                <div style="position: relative;">
+                    <input type="text" id="inputBuscadorZona" placeholder="🔍 Buscar Ciudad (Madrid, San Nicolas...)" onkeyup="filtrarPorZona()">
+                    <ul id="sugerenciasZona" class="sugerencias-lista"></ul>
+                </div>
             </div>
             <div id="contenedor-items-lista"></div>
         </div>
     </div>
 
-    <div id="modal-filtros" class="modal-personalizado"><div class="contenido-modal"><h2>Filtros</h2><button onclick="aplicarFiltrosMultiples()">Aplicar</button><button onclick="cerrarModalFiltros()">Cerrar</button></div></div>
-    <div id="modal-anadir"><div class="contenido-modal"><h2>Añadir Sitio</h2><input id="nombre"><textarea id="descripcion"></textarea><button onclick="guardarSitio()">Guardar</button><button onclick="cerrarModal()">Cerrar</button></div></div>
+    <div id="modal-filtros" class="modal-personalizado">
+        <div class="contenido-modal">
+            <h2>⚙️ Filtros</h2>
+            <div class="grid-checks-pro">
+                <label><input type="checkbox" class="filtro-check" value="Rampa"> ♿ Rampa</label>
+                <label><input type="checkbox" class="filtro-check" value="Baño"> 🚻 Baño</label>
+                <label><input type="checkbox" class="filtro-check" value="Calma"> 🧠 Calma</label>
+                <label><input type="checkbox" class="filtro-check" value="Braille"> 👁️ Braille</label>
+            </div>
+            <button class="btn-principal" onclick="aplicarFiltrosMultiples()">Aplicar</button>
+            <button class="btn-secundario" onclick="cerrarModalFiltros()">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-anadir">
+        <div class="contenido-modal">
+            <h2>📍 Registrar Espacio</h2>
+            <div class="scroll-form">
+                <input type="text" id="nombre" placeholder="Nombre del lugar">
+                <textarea id="descripcion" placeholder="Descripción..."></textarea>
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <input type="text" id="input-direccion" placeholder="Dirección completa..." style="flex:1; margin-bottom: 0;">
+                    <button onclick="buscarDireccion()" style="background:var(--teal); color:white; border:none; border-radius:15px; padding:0 15px;">🔍</button>
+                </div>
+                <div id="mapa-seleccion"></div>
+                <button class="btn-principal" onclick="guardarSitio()">Guardar</button>
+                <button class="btn-secundario" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
