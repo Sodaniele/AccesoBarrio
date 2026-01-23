@@ -123,15 +123,61 @@ function filtrarPorZona() {
 }
 
 async function buscarDireccion() {
-    const calle = document.getElementById('input-direccion').value;
-    const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&addressdetails=1&limit=1`);
-    const data = await r.json();
-    if (data.length > 0) {
-        const addr = data[0].address;
-        localidadDetectada = `${(addr.city || addr.town || addr.village || 'Desconocida').toUpperCase()}, ${(addr.country || 'ARGENTINA').toUpperCase()}`;
-        mapaSel.setView([data[0].lat, data[0].lon], 16);
-        if (marcadorSel) marcadorSel.setLatLng([data[0].lat, data[0].lon]);
-        else marcadorSel = L.marker([data[0].lat, data[0].lon], {draggable: true}).addTo(mapaSel);
+    const direccionUsuario = document.getElementById('input-direccion').value;
+    if (!direccionUsuario) return Swal.fire({ icon: 'info', text: 'Por favor, escribe una dirección.' });
+
+    // Mostramos un pequeño aviso de que estamos buscando
+    const loadingToast = Swal.fire({
+        title: 'Buscando...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+
+    // Usamos la API de Nominatim con addressdetails para extraer la ciudad y el país
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccionUsuario)}&addressdetails=1&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.length > 0) {
+            const resultado = data[0];
+            const addr = resultado.address;
+
+            // Extraemos la ciudad/pueblo y el país
+            const ciudad = addr.city || addr.town || addr.village || addr.municipality || addr.county || "Desconocida";
+            const pais = addr.country || "Desconocido";
+
+            // Guardamos el formato que querías: CIUDAD, PAÍS
+            localidadDetectada = `${ciudad.toUpperCase()}, ${pais.toUpperCase()}`;
+            
+            const lat = parseFloat(resultado.lat);
+            const lon = parseFloat(resultado.lon);
+
+            // Movemos el mapa de selección con un efecto suave
+            mapaSel.flyTo([lat, lon], 17, { duration: 2 });
+
+            // Colocamos o movemos el marcador
+            if (marcadorSel) {
+                marcadorSel.setLatLng([lat, lon]);
+            } else {
+                marcadorSel = L.marker([lat, lon], { draggable: true }).addTo(mapaSel);
+            }
+
+            Swal.close(); // Cerramos el aviso de carga
+            console.log("Encontrado:", localidadDetectada);
+            
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'No encontrado',
+                text: 'No pudimos localizar esa dirección. Prueba agregando la ciudad o el país.',
+                confirmButtonColor: '#006D77'
+            });
+        }
+    } catch (e) {
+        console.error("Error en la geocodificación:", e);
+        Swal.fire({ icon: 'error', text: 'Hubo un problema con el buscador de mapas.' });
     }
 }
 
