@@ -3,6 +3,7 @@ let mapaSel, marcadorSel;
 let editandoId = null;
 let localidadDetectada = "";
 
+// Cargar Datos
 async function cargarSitios() {
     try {
         const r = await fetch('/api/sitios');
@@ -12,6 +13,7 @@ async function cargarSitios() {
     } catch(e) { console.error(e); }
 }
 
+// Iconos personalizados
 const crearIcono = (emoji, color) => L.divIcon({
     html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
     className: '', iconSize: [35, 35], iconAnchor: [17, 35]
@@ -32,6 +34,7 @@ function initMap() {
     mapa.locate({setView: true, maxZoom: 15});
 }
 
+// ✨ FUNCIÓN MODIFICADA: Ahora agrupa por CIUDAD
 function mostrarSitios(lista) {
     if (mapa) {
         marcadores.forEach(m => mapa.removeLayer(m));
@@ -41,30 +44,65 @@ function mostrarSitios(lista) {
     if (!divContenedor) return;
     divContenedor.innerHTML = '';
 
-    lista.forEach(s => {
-        const esPinProtegido = s.nombre === "Familia Daniele";
-        let iconoAUsar = s.caracteristicas.includes('Rampa') ? iconos.movilidad : iconos.default;
-        if (esPinProtegido) iconoAUsar = iconos.especial;
+    // 1. Agrupamos los sitios por localidad
+    const grupos = lista.reduce((acc, s) => {
+        const loc = s.localidad || 'UBICACIÓN GENERAL';
+        if (!acc[loc]) acc[loc] = [];
+        acc[loc].push(s);
+        return acc;
+    }, {});
 
-        if (mapa) {
-            const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`<b>${s.nombre}</b>`);
-            marcadores.push(m);
-        }
+    // 2. Creamos una tarjeta por cada CIUDAD
+    Object.keys(grupos).forEach(ciudad => {
+        const contenedorCiudad = document.createElement('div');
+        contenedorCiudad.className = 'contenedor-ciudad';
 
-        const card = document.createElement('div');
-        card.className = 'item-lista';
-        card.innerHTML = `
-            <div>
-                <span class="tag-localidad">📍 ${s.localidad || 'UBICACIÓN GENERAL'}</span>
-                <h3 style="margin:0; color:#006d77;">${s.nombre}</h3>
-                <p style="font-size:12px; color:#666;">${s.descripcion || ''}</p>
+        // Cabecera de la ciudad (La tarjeta principal)
+        contenedorCiudad.innerHTML = `
+            <div class="header-ciudad" onclick="toggleCiudad(this)">
+                <span>📍 ${ciudad}</span>
+                <span class="contador-pines">${grupos[ciudad].length} sitios</span>
             </div>
-            <div style="margin-top:10px;">
-                ${s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('')}
-            </div>
+            <div class="lista-pines-ciudad" style="display: none;"></div>
         `;
-        divContenedor.appendChild(card);
+
+        const contenedorPines = contenedorCiudad.querySelector('.lista-pines-ciudad');
+
+        // 3. Metemos los sitios dentro de esa ciudad
+        grupos[ciudad].forEach(s => {
+            const esPinProtegido = s.nombre === "Familia Daniele";
+            let iconoAUsar = s.caracteristicas.includes('Rampa') ? iconos.movilidad : iconos.default;
+            if (esPinProtegido) iconoAUsar = iconos.especial;
+
+            if (mapa) {
+                const m = L.marker([s.lat, s.lng], { icon: iconoAUsar }).addTo(mapa).bindPopup(`<b>${s.nombre}</b>`);
+                marcadores.push(m);
+            }
+
+            const card = document.createElement('div');
+            card.className = 'item-lista';
+            card.innerHTML = `
+                <div>
+                    <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
+                    <p style="font-size:12px; color:#666;">${s.descripcion || ''}</p>
+                </div>
+                <div style="margin-top:10px;">
+                    ${s.caracteristicas.map(cat => `<span class="tag-accesibilidad">${cat}</span>`).join('')}
+                </div>
+            `;
+            contenedorPines.appendChild(card);
+        });
+
+        divContenedor.appendChild(contenedorCiudad);
     });
+}
+
+// ✨ Nueva función para abrir/cerrar ciudades
+function toggleCiudad(elemento) {
+    const lista = elemento.nextElementSibling;
+    const estaAbierto = lista.style.display === 'grid';
+    lista.style.display = estaAbierto ? 'none' : 'grid';
+    elemento.classList.toggle('ciudad-activa');
 }
 
 async function buscarDireccion() {
@@ -107,7 +145,41 @@ async function guardarSitio() {
     if (r.ok) location.reload();
 }
 
-// FUNCIONES DE VISTA Y BOTONES
+// MODIFICADA: Ahora abre la ciudad automáticamente al buscarla
+function filtrarPorZona() {
+    const texto = document.getElementById('inputBuscadorZona').value.toUpperCase();
+    const sugerenciasUl = document.getElementById('sugerenciasZona');
+    sugerenciasUl.innerHTML = '';
+    if (texto.length < 1) { mostrarSitios(locales); return; }
+    
+    const zonas = [...new Set(locales.map(l => l.localidad).filter(l => l))];
+    zonas.filter(z => z.includes(texto)).forEach(z => {
+        const li = document.createElement('li');
+        li.textContent = z;
+        li.onclick = () => {
+            document.getElementById('inputBuscadorZona').value = z;
+            sugerenciasUl.innerHTML = '';
+            
+            // Filtramos los locales de esa ciudad
+            const filtrados = locales.filter(l => l.localidad === z);
+            mostrarSitios(filtrados);
+
+            // AUTO-ABRIR la tarjeta de la ciudad
+            const header = document.querySelector('.header-ciudad');
+            if (header) toggleCiudad(header);
+            
+            // Volar en el mapa
+            if(filtrados.length > 0) {
+                alternarVista();
+                mapa.flyTo([filtrados[0].lat, filtrados[0].lng], 13);
+            }
+        };
+        sugerenciasUl.appendChild(li);
+    });
+}
+
+// ... (El resto de tus funciones: alternarVista, abrirFormulario, cerrarModal, etc. se mantienen igual) ...
+
 function alternarVista() {
     const mCont = document.getElementById('contenedor-mapa-pro'), l = document.getElementById('vista-lista');
     const esMapa = mCont.style.display !== 'none';
@@ -151,24 +223,6 @@ function buscarDesdeInicio() {
     }, 400);
 }
 
-function filtrarPorZona() {
-    const texto = document.getElementById('inputBuscadorZona').value.toUpperCase();
-    const sugerenciasUl = document.getElementById('sugerenciasZona');
-    sugerenciasUl.innerHTML = '';
-    if (texto.length < 1) { mostrarSitios(locales); return; }
-    const zonas = [...new Set(locales.map(l => l.localidad).filter(l => l))];
-    zonas.filter(z => z.includes(texto)).forEach(z => {
-        const li = document.createElement('li');
-        li.textContent = z;
-        li.onclick = () => {
-            document.getElementById('inputBuscadorZona').value = z;
-            sugerenciasUl.innerHTML = '';
-            mostrarSitios(locales.filter(l => l.localidad === z));
-        };
-        sugerenciasUl.appendChild(li);
-    });
-}
-
 function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
 function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
 function aplicarFiltrosMultiples() {
@@ -179,7 +233,6 @@ function aplicarFiltrosMultiples() {
     cerrarModalFiltros();
 }
 
-// Accesibilidad
 function toggleMenuAccesibilidad() { document.getElementById('menu-accesibilidad').classList.toggle('menu-oculto'); }
 function ajustarTexto(f) {
     const r = document.documentElement;

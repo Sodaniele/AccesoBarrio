@@ -155,7 +155,7 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
 #contenedor-mapa-pro { position: relative; flex: 1; display: flex; flex-direction: column; }
 #mapa { flex: 1; width: 100%; }
 
-/* ✨ BUSCADOR DE ZONA (CIUDAD/PAÍS) ✨ */
+/* ✨ BUSCADOR DE ZONA ✨ */
 .buscador-zona-wrapper {
     background: white; 
     padding: 15px 20px; 
@@ -203,7 +203,7 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
 
 .sugerencias-lista li:hover { background: var(--teal-light); }
 
-/* 📋 VISTA LISTA - TRANSFORMADA EN GRID DE TARJETAS */
+/* 📋 VISTA LISTA - ESTRUCTURA ACORDEÓN */
 #vista-lista { 
     flex: 1; 
     overflow-y: auto; 
@@ -211,55 +211,95 @@ input[type="text"], textarea { width: 100%; padding: 12px; border-radius: 15px; 
     background: #fdfdfd; 
 }
 
-/* ✨ ESTE ES EL CAMBIO CLAVE ✨ */
 #contenedor-items-lista { 
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Tarjetas responsivas */
-    gap: 20px; /* Espacio entre tarjetas */
     padding: 25px; 
 }
 
-/* ✨ DISEÑO DE LA TARJETA (ITEM-LISTA) ✨ */
+/* ✨ TARJETA CABECERA DE CIUDAD ✨ */
+.contenedor-ciudad {
+    margin-bottom: 20px;
+}
+
+.header-ciudad {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 20px;
+    border-left: 8px solid var(--coral); /* Color Coral para diferenciar Ciudades */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    font-weight: 800;
+    color: var(--teal);
+}
+
+.header-ciudad:hover {
+    background: #fffafa;
+    transform: scale(1.02);
+}
+
+/* Efecto cuando el acordeón está abierto */
+.header-ciudad.ciudad-activa {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--bg);
+}
+
+.contador-pines {
+    background: var(--teal-light);
+    color: var(--teal);
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+/* ✨ GRILLA DE SITIOS DENTRO DE CIUDAD ✨ */
+.lista-pines-ciudad {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 15px;
+    padding: 20px;
+    background: white;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+    border: 1px solid #eee;
+    border-top: none;
+}
+
+/* ✨ DISEÑO DE LA TARJETA DE SITIO INDIVIDUAL ✨ */
 .item-lista { 
     background: white; 
-    border-radius: 24px; 
-    padding: 25px; 
+    border-radius: 18px; 
+    padding: 20px; 
     border: 1px solid #eee; 
-    border-top: 8px solid var(--teal); /* Borde superior para darle identidad */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.05); /* Sombra suave */
+    border-top: 5px solid var(--teal); /* Teal para los Sitios */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    margin-bottom: 0; /* Ya no necesitamos margin bottom porque usamos gap en el grid */
+    transition: transform 0.3s ease;
 }
 
-/* Efecto al pasar el mouse */
 .item-lista:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0,109,119,0.12);
+    transform: translateY(-5px);
 }
 
-.tag-localidad {
+.tag-accesibilidad {
     background: var(--teal-light); 
     color: var(--teal); 
+    padding: 4px 10px;
+    border-radius: 15px; 
     font-size: 10px; 
-    font-weight: 800; 
-    padding: 4px 10px; 
-    border-radius: 8px; 
-    text-transform: uppercase; 
-    margin-bottom: 12px; 
-    display: inline-block;
-    letter-spacing: 0.5px;
+    font-weight: 700; 
+    border: 1px solid #b2dfdb;
+    display: inline-block; 
+    margin: 2px;
 }
 
 /* ✨ ETIQUETAS Y FIRMA */
-.tag-accesibilidad {
-    background: var(--teal-light); color: var(--teal); padding: 5px 12px;
-    border-radius: 20px; font-size: 11px; font-weight: 700; border: 1px solid #b2dfdb;
-    display: inline-block; margin-right: 5px; margin-bottom: 5px;
-}
-
 .firma-autor { text-align: center; padding: 20px 10px; width: 100%; }
 .firma-autor p { font-size: 11px !important; color: #999 !important; letter-spacing: 0.5px; font-weight: 600; margin: 0; text-transform: uppercase; }
 
