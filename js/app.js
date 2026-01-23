@@ -22,10 +22,10 @@ const crearIcono = (emoji, color) => L.divIcon({
 const iconos = {
     movilidad: crearIcono('♿', '#006D77'),
     calma: crearIcono('🧠', '#83C5BE'),
-    visual: crearIcono('👁️', '#E29578'),
-    cognitiva: crearIcono('🧩', '#FFD700'),
-    auditiva: crearIcono('👋', '#4CAF50'),
-    especial: crearIcono('❤️', '#FF7E6B'), 
+    visual: crearIcono('👁️', '#E29578'), // Sirve para Braille y Piso Podotáctil
+    auditiva: crearIcono('👂', '#4CAF50'), // Nuevo para Aro Magnético
+    perro: crearIcono('🐕', '#FF9800'), // Nuevo para Perro Guía
+    especial: crearIcono('❤️', '#FFD700'), 
     default: crearIcono('📍', '#008080')
 };
 
