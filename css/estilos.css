@@ -12,7 +12,7 @@ body {
     background-size: 20px 20px; min-height: 100vh; overflow-x: hidden;
 }
 
-/* 2. OCULTAR ELEMENTOS POR DEFECTO (Esto arregla el amontonamiento) */
+/* 2. OCULTAR ELEMENTOS POR DEFECTO */
 #pantalla-resultados, .modal-personalizado { display: none; }
 
 /* 3. PANTALLA INICIO */
@@ -75,6 +75,38 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 }
 .grid-checks-pro label:has(input:checked) { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
 
+/* ✨ AQUÍ ESTÁ EL CÓDIGO NUEVO INTEGRADO ✨ */
+/* Estilos unificados para Inputs de Texto y Textareas en formularios */
+.scroll-form input[type="text"], 
+.scroll-form textarea {
+    width: 100%;
+    background: #ffffff;
+    border: 2px solid #eee;
+    border-radius: 15px;
+    padding: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #333;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.scroll-form input[type="text"]:focus, 
+.scroll-form textarea:focus {
+    border-color: var(--teal);
+    background: #fff;
+    box-shadow: 0 5px 15px rgba(0, 109, 119, 0.1);
+}
+
+.scroll-form textarea {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
 /* 5. PANTALLA RESULTADOS */
 #pantalla-resultados { display: none; flex-direction: column; height: 100vh; width: 100%; }
 .barra-superior-pro { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: white; border-bottom: 1px solid #eee; }
@@ -87,14 +119,14 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
     box-shadow: 0 5px 20px rgba(0,0,0,0.1); border: 2px solid transparent; width: 100%; box-sizing: border-box;
 }
 .buscador-pill:focus-within { border-color: var(--teal); }
-.buscador-pill input { border: none; outline: none; flex: 1; padding: 0 10px; font-size: 14px; }
+.buscador-pill input { border: none; outline: none; flex: 1; padding: 0 10px; font-size: 14px; background: transparent; }
 .buscador-mapa-flotante { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; width: 90%; max-width: 400px; }
 
 /* Buscador Dirección Registro */
 .buscador-direccion-wrapper {
     display: flex; background: white; border-radius: 50px; padding: 5px; border: 2px solid #eee; margin-bottom: 15px;
 }
-.buscador-direccion-wrapper input { flex: 1; border: none; outline: none; padding: 10px 15px; background: transparent; }
+.buscador-direccion-wrapper input { flex: 1; border: none; outline: none; padding: 10px 15px; background: transparent; margin-bottom: 0; box-shadow: none;}
 .buscador-direccion-wrapper button {
     background: var(--teal); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;
 }
