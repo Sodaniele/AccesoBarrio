@@ -24,7 +24,7 @@ const iconos = {
     default: crearIcono('📍', '#008080')
 };
 
-// Mostrar Sitios Agrupados por Ciudad
+// ✨ AGRUPACIÓN INTELIGENTE POR CIUDAD
 function mostrarSitios(lista) {
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
@@ -32,7 +32,6 @@ function mostrarSitios(lista) {
     if (!divContenedor) return;
     divContenedor.innerHTML = '';
 
-    // ✨ AGRUPACIÓN INTELIGENTE
     const grupos = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
@@ -87,7 +86,6 @@ function filtrarPorZona() {
             listaSug.innerHTML = '';
             const filtrados = locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === c);
             mostrarSitios(filtrados);
-            // Abrir automáticamente el acordeón de la ciudad buscada
             setTimeout(() => {
                 const header = document.querySelector('.header-ciudad');
                 if (header) toggleCiudad(header);
@@ -102,7 +100,6 @@ function toggleCiudad(el) {
     list.style.display = (list.style.display === 'grid') ? 'none' : 'grid';
 }
 
-// Navegación
 function alternarVista() {
     const mapCont = document.getElementById('contenedor-mapa-pro'), listCont = document.getElementById('vista-lista');
     const isMap = mapCont.style.display !== 'none';
@@ -163,7 +160,6 @@ async function guardarSitio() {
     location.reload();
 }
 
-// Cierres de modal
 function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
 function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
 function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
