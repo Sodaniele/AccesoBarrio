@@ -11,20 +11,19 @@ async function cargarSitios() {
     } catch(e) { console.error(e); }
 }
 
-// Iconos
 const crearIcono = (emoji, color) => L.divIcon({
     html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; font-size: 20px;">${emoji}</div>`,
     className: '', iconSize: [35, 35], iconAnchor: [17, 35]
 });
 
-const iconos = {
-    movilidad: crearIcono('♿', '#006D77'),
-    calma: crearIcono('🧠', '#83C5BE'),
-    visual: crearIcono('👁️', '#E29578'),
-    default: crearIcono('📍', '#008080')
-};
+const iconos = { movilidad: crearIcono('♿', '#006D77'), default: crearIcono('📍', '#008080') };
 
-// ✨ AGRUPACIÓN INTELIGENTE POR CIUDAD
+function initMap() {
+    if (mapa) return;
+    mapa = L.map('mapa').setView([40.41, -3.70], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
+}
+
 function mostrarSitios(lista) {
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
@@ -66,38 +65,29 @@ function mostrarSitios(lista) {
     });
 }
 
-// ✨ BUSCADOR CON SUGERENCIAS DINÁMICAS
+function toggleCiudad(el) {
+    const list = el.nextElementSibling;
+    list.style.display = (list.style.display === 'grid') ? 'none' : 'grid';
+}
+
 function filtrarPorZona() {
     const input = document.getElementById('inputBuscadorZona');
     const valor = input.value.toUpperCase();
     const listaSug = document.getElementById('sugerenciasZona');
     listaSug.innerHTML = '';
-
     if (valor.length < 1) { mostrarSitios(locales); return; }
-
     const ciudades = [...new Set(locales.map(l => l.localidad || 'UBICACIÓN GENERAL'))];
-    const coincidencias = ciudades.filter(c => c.includes(valor));
-
-    coincidencias.forEach(c => {
+    ciudades.filter(c => c.includes(valor)).forEach(c => {
         const li = document.createElement('li');
         li.textContent = c;
         li.onclick = () => {
             input.value = c;
             listaSug.innerHTML = '';
-            const filtrados = locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === c);
-            mostrarSitios(filtrados);
-            setTimeout(() => {
-                const header = document.querySelector('.header-ciudad');
-                if (header) toggleCiudad(header);
-            }, 100);
+            mostrarSitios(locales.filter(l => (l.localidad || 'UBICACIÓN GENERAL') === c));
+            setTimeout(() => { toggleCiudad(document.querySelector('.header-ciudad')); }, 100);
         };
         listaSug.appendChild(li);
     });
-}
-
-function toggleCiudad(el) {
-    const list = el.nextElementSibling;
-    list.style.display = (list.style.display === 'grid') ? 'none' : 'grid';
 }
 
 function alternarVista() {
@@ -115,13 +105,7 @@ function buscarDesdeInicio() {
     mostrarSitios(locales);
 }
 
-function initMap() {
-    if (mapa) return;
-    mapa = L.map('mapa').setView([40.41, -3.70], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapa);
-}
-
-// Registro de Sitios
+// Registro y Modales
 let mapaSel, marcadorSel;
 function abrirFormulario() {
     document.getElementById('modal-anadir').style.display = 'flex';
@@ -134,7 +118,6 @@ function abrirFormulario() {
         });
     }
 }
-
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(calle)}&addressdetails=1&limit=1`);
@@ -147,7 +130,6 @@ async function buscarDireccion() {
         else marcadorSel = L.marker([data[0].lat, data[0].lon]).addTo(mapaSel);
     }
 }
-
 async function guardarSitio() {
     const datos = {
         nombre: document.getElementById('nombre').value,
@@ -159,9 +141,8 @@ async function guardarSitio() {
     await fetch('/api/sitios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
     location.reload();
 }
-
 function cerrarModal() { document.getElementById('modal-anadir').style.display = 'none'; }
 function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
 function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
-
+function toggleVoz() {}
 window.onload = cargarSitios;
