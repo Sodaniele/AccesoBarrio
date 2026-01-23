@@ -222,19 +222,35 @@ function buscarDesdeInicio() {
     const t = document.getElementById('input-inicio').value;
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
-    initMap();
+    
+    initMap(); // Inicializa el mapa
+
     setTimeout(() => {
-        const res = locales.filter(l => l.nombre.toLowerCase().includes(t.toLowerCase()));
-        mostrarSitios(res);
-    }, 400);
+        if (mapa) {
+            mapa.invalidateSize(); 
+            if (t.trim() !== "") {
+                const res = locales.filter(l => l.nombre.toLowerCase().includes(t.toLowerCase()));
+                mostrarSitios(res);
+            } else {
+                mostrarSitios(locales);
+            }
+        }
+    }, 100);
 }
 
 function cargarResultados(f) {
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
+    
     initMap();
-    let res = f ? locales.filter(l => l.caracteristicas.includes(f)) : locales;
-    setTimeout(() => { mostrarSitios(res); }, 400);
+
+    setTimeout(() => {
+        if (mapa) {
+            mapa.invalidateSize(); // ✨ Redibuja para que no se vea blanco
+            let res = f ? locales.filter(l => l.caracteristicas.includes(f)) : locales;
+            mostrarSitios(res);
+        }
+    }, 100);
 }
 
 function abrirFormulario() {
