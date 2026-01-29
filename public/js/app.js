@@ -38,6 +38,7 @@ const iconos = {
     cognitiva: crearIcono('🧩', '#FFD700'),
     auditiva: crearIcono('👂', '#4CAF50'),
     perro: crearIcono('🐕', '#FF9800'),
+    ascensor: crearIcono('🛗', '#9C27B0'), // 💜 El pedido de papá añadido
     default: crearIcono('📍', '#008080')
 };
 
@@ -52,13 +53,32 @@ function initMap() {
     }).addTo(mapa);
 }
 
-// ⚠️ FUNCIÓN MODIFICADA: CREA "CARPETAS" DE CIUDADES EN LA LISTA
+// ⚠️ FUNCIÓN MODIFICADA: INCLUYE "NO HAY NADA", "WHATSAPP" Y "ASCENSOR"
 function mostrarSitios(lista) {
     // 1. Limpieza del Mapa
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
 
-    // 2. Agrupamos los datos
+    const divContenedor = document.getElementById('contenedor-items-lista');
+
+    // 🕵️‍♀️ 2. ESTADO VACÍO (Si la lista llega vacía, mostramos esto)
+    if (lista.length === 0 && divContenedor) {
+        divContenedor.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 60px;">🕵️‍♀️</div>
+                <h3 style="color: #006D77; margin-top: 10px; font-weight:800;">Vaya, no hay nada...</h3>
+                <p style="color: #666; font-size: 14px;">Nadie ha registrado un sitio con ese nombre todavía.</p>
+                <button onclick="abrirFormulario()" class="btn-principal" style="max-width: 250px; margin: 20px auto; background-color:#FF7E6B;">
+                    + ¡Sé el primero en añadirlo!
+                </button>
+            </div>
+        `;
+        // Centramos el mapa en una vista general para no despistar
+        if(mapa) mapa.setView([40.4167, -3.7033], 5); 
+        return; // Paramos aquí, no dibujamos nada más
+    }
+
+    // 3. Agrupamos los datos
     gruposPorCiudad = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
@@ -66,8 +86,7 @@ function mostrarSitios(lista) {
         return acc;
     }, {});
 
-    // 3. RENDERIZADO DE LA LISTA (MODO CARPETAS) 📂
-    const divContenedor = document.getElementById('contenedor-items-lista');
+    // 4. RENDERIZADO DE LA LISTA (MODO CARPETAS) 📂
     if (divContenedor) {
         divContenedor.innerHTML = ''; // Limpiamos
 
@@ -94,11 +113,14 @@ function mostrarSitios(lista) {
         divContenedor.appendChild(grid);
     }
         
-    // 4. RENDERIZADO DEL MAPA (Marcadores normales)
+    // 5. RENDERIZADO DEL MAPA (Marcadores normales)
     Object.keys(gruposPorCiudad).forEach(ciudad => {
         gruposPorCiudad[ciudad].forEach(s => {
             let icono = iconos.default;
-            if (s.caracteristicas.includes('Rampa') || s.caracteristicas.includes('Baño')) icono = iconos.movilidad;
+
+            // Lógica de iconos (Incluido Ascensor)
+            if (s.caracteristicas.includes('Ascensor')) icono = iconos.ascensor;
+            else if (s.caracteristicas.includes('Rampa') || s.caracteristicas.includes('Baño')) icono = iconos.movilidad;
             else if (s.caracteristicas.includes('Calma')) icono = iconos.calma;
             else if (s.caracteristicas.includes('Braille') || s.caracteristicas.includes('Podotactil')) icono = iconos.visual;
             else if (s.caracteristicas.includes('Pictogramas')) icono = iconos.cognitiva;
@@ -114,8 +136,9 @@ function mostrarSitios(lista) {
                 const btnEditarPopup = esAdmin ? 
                     `<button onclick="editarSitio('${idReal}')" style="background:#eee; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer; margin-left:5px;">✏️</button>` : '';
 
+                // 💬 AÑADIDO BOTÓN WHATSAPP AQUÍ ABAJO 👇
                 const contenidoPopup = `
-                    <div style="font-family: 'Poppins', sans-serif; min-width: 200px;">
+                    <div style="font-family: 'Poppins', sans-serif; min-width: 220px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h3 style="margin:0 0 5px 0; color:#006d77; font-size:15px; font-weight:800;">${s.nombre}</h3>
                             ${btnEditarPopup}
@@ -126,17 +149,19 @@ function mostrarSitios(lista) {
                         <div style="margin-bottom:8px;">${tagsPopup}</div>
                         <div style="display:flex; gap:5px; margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
                              <a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" 
-                                style="background:#006D77; color:white; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🗺️ Ir</a>
+                                style="background:#006D77; color:white; text-decoration:none; padding:6px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🗺️ Ir</a>
+                             
+                             <a href="https://api.whatsapp.com/send?text=¡Mira%20este%20sitio%20accesible!%20*${encodeURIComponent(s.nombre)}*%20tiene%20${encodeURIComponent(s.caracteristicas.join(', '))}.%20Encuéntralo%20en%20AccesoBarrio." 
+                                target="_blank"
+                                style="background:#25D366; color:white; text-decoration:none; padding:6px; border-radius:5px; font-size:11px; flex:1; text-align:center;">💬 Wsp</a>
+
                              <a href="https://twitter.com/intent/tweet?text=Reporte%20Accesibilidad%20${s.nombre}" target="_blank"
-                                style="background:#ff4444; color:white; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🚨 Reportar</a>
+                                style="background:#ff4444; color:white; text-decoration:none; padding:6px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🚨</a>
                         </div>
                     </div>
                 `;
                 const m = L.marker([s.lat, s.lng], { icon: icono }).addTo(mapa).bindPopup(contenidoPopup);
-                
-                // ⚠️ GUARDAMOS UNA REFERENCIA AL ID EN EL OBJETO DEL MARCADOR
                 m.idSitio = idReal; 
-                
                 marcadores.push(m);
             }
         });
@@ -564,3 +589,50 @@ function actualizarInfoPortada() {
         contadorTags.innerText = totalTags;
     }
 }
+
+// ==========================================
+// ✍️ EFECTO MÁQUINA DE ESCRIBIR (AÑADIDO)
+// ==========================================
+const frases = [
+    "¿Qué lugar buscas hoy?",       // Frase base
+    "Por ejemplo: 'Bar El Tío'...", // Ejemplo de nombre
+    "Por ejemplo: 'Farmacia'...",   // Ejemplo de tipo
+    "Por ejemplo: 'Escuela Nº5'...", // Ejemplo de nombre
+    "Por ejemplo: 'Teatro Colón'..." // Ejemplo de nombre
+];
+
+let fraseIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+const element = document.getElementById('subtitulo-dinamico');
+
+function typeWriter() {
+    if (!element) return;
+    
+    const currentFrase = frases[fraseIndex];
+    
+    if (isDeleting) {
+        element.textContent = currentFrase.substring(0, charIndex - 1);
+        charIndex--;
+    } else {
+        element.textContent = currentFrase.substring(0, charIndex + 1);
+        charIndex++;
+    }
+
+    // Velocidades
+    let typeSpeed = isDeleting ? 30 : 80; // Escribe a 80ms, Borra a 30ms
+
+    if (!isDeleting && charIndex === currentFrase.length) {
+        typeSpeed = 2000; // Se queda quieto 2 segundos para que lo lean
+        isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        fraseIndex = (fraseIndex + 1) % frases.length;
+        typeSpeed = 500; // Pausa pequeña antes de escribir la siguiente
+    }
+
+    setTimeout(typeWriter, typeSpeed);
+}
+
+// Iniciar al cargar
+document.addEventListener('DOMContentLoaded', typeWriter);
