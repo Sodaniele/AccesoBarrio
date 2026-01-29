@@ -520,13 +520,25 @@ window.resetAccesibilidad = function() { zoomLevel = 1; document.body.style.tran
 
 // 1. Frases aleatorias de accesibilidad
 const curiosidades = [
-    "El 'Aro Magnético' permite a las personas con audífonos escuchar el sonido directamente en su oído sin ruido ambiente.",
-    "El ancho mínimo para que pase una silla de ruedas cómodamente es de 80 cm, aunque lo ideal son 90 cm.",
-    "La señalización podotáctil (suelo con relieve) avisa a las personas ciegas de cambios de nivel o peligros.",
-    "El contraste de colores en los carteles es vital para personas con baja visión. Texto oscuro sobre fondo claro es lo mejor.",
-    "La 'Lectura Fácil' usa frases cortas y sencillas para ayudar a personas con dificultades cognitivas a entender la información.",
-    "Un baño accesible debe tener barras de apoyo a ambos lados del inodoro y espacio para girar la silla 360º.",
-    "La accesibilidad no solo ayuda a personas con discapacidad, ¡también a padres con carritos, repartidores y ancianos!"
+    // --- 🎓 DATOS QUE ENSEÑAN (Educativos) ---
+    "El color amarillo es el último que el ojo humano deja de ver antes de perder la visión, por eso es vital para marcar escalones.",
+    "El 'Aro Magnético' filtra el ruido ambiente y transmite el sonido directo al audífono. Sin él, el ruido de fondo hace imposible oír.",
+    "La Lengua de Señas (LSA) no es universal ni es mímica: es un idioma completo con su propia gramática y cultura.",
+    "Los pictogramas y la 'Lectura Fácil' no son infantiles; son esenciales para personas con autismo o discapacidad intelectual.",
+    "Una rampa segura no debe superar el 10% de inclinación. Si es más empinada, deja de ser una ayuda y se convierte en un tobogán peligroso.",
+    "El ancho libre de paso mínimo para una silla de ruedas es de 80cm. Menos que eso, es una barrera invisible.",
+
+    // --- ✊ FRASES JUSTICIERAS (Activismo) ---
+    "La discapacidad no está en la persona, sino en el entorno que no se adapta. Si quitas la barrera, la discapacidad desaparece.",
+    "La accesibilidad no es un favor ni caridad, es un DERECHO. Un local inaccesible es un acto de discriminación.",
+    "Nada sobre nosotros sin nosotros: Las soluciones de accesibilidad deben consultarse siempre con quienes las van a usar.",
+    "No queremos ser 'héroes' por lograr salir a la calle, queremos salir a la calle con la misma normalidad que tú.",
+    "Un lugar accesible beneficia a todos: a la persona en silla de ruedas, al abuelo con bastón y al repartidor con carretilla.",
+
+    // --- 💜 EN HONOR A MAMÁ (El alma del proyecto) ---
+    "Este mapa existe gracias a la fuerza de mi madre. Porque si el mundo te cierra una puerta, el amor de una madre construye una rampa.",
+    "Dedicado a mi mamá, que me enseñó que la única barrera real es la falta de empatía.",
+    "Por la lucha de mi madre. Porque rendirse nunca fue una opción, y adaptar el mundo, nuestra misión."
 ];
 
 // 2. Función para actualizar la portada
