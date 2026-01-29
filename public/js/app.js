@@ -5,7 +5,7 @@ let mapaSel, marcadorSel;
 let gruposPorCiudad = {}; 
 
 // ============================================
-// 🔐 CONFIGURACIÓN DE ADMIN
+// 🔐 CONFIGURACIÓN DE ADMIN (SEGURIDAD MEJORADA)
 // ============================================
 const ADMIN_PIN = "sofi2026"; 
 let esAdmin = false; 
@@ -129,6 +129,10 @@ function mostrarSitios(lista) {
                     </div>
                 `;
                 const m = L.marker([s.lat, s.lng], { icon: icono }).addTo(mapa).bindPopup(contenidoPopup);
+                
+                // ⚠️ GUARDAMOS UNA REFERENCIA AL ID EN EL OBJETO DEL MARCADOR
+                m.idSitio = idReal; 
+                
                 marcadores.push(m);
             }
         });
@@ -284,34 +288,55 @@ async function guardarSitio() {
 
 function buscarDesdeInicio() {
     const t = document.getElementById('input-inicio').value;
+    
+    // Si no escribe nada, no hace nada
+    if(!t) return;
+    
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
     initMap();
     setTimeout(() => {
         mapa.invalidateSize();
-        const res = locales.filter(l => l.nombre.toLowerCase().includes(t.toLowerCase()));
-        mostrarSitios(res);
-    }, 200);
+        // Llamamos al SuperBuscador con lo que escribió
+        document.getElementById('buscador-texto').value = t;
+        superBuscador();
+    }, 500); // Damos un poco de tiempo para que cargue el mapa
 }
 
+// 🚀 SUPER BUSCADOR MEJORADO (Vuela al sitio)
 async function superBuscador() {
     const input = document.getElementById('buscador-texto');
     const texto = input.value.trim().toLowerCase(); 
     if (!texto) return; 
 
-    const encontrados = locales.filter(sitio => sitio.nombre.toLowerCase().includes(texto));
+    // 1. PRIMERO BUSCAMOS EN NUESTROS SITIOS (Prioridad local)
+    const encontradoLocal = locales.find(sitio => sitio.nombre.toLowerCase().includes(texto));
 
-    if (encontrados.length > 0) {
-        mostrarSitios(encontrados);
-        const sitio = encontrados[0];
-        mapa.flyTo([sitio.lat, sitio.lng], 18, { animate: true, duration: 1.5 });
+    if (encontradoLocal) {
+        // Aseguramos que se ve el mapa (si estaba en modo lista)
+        const m = document.getElementById('contenedor-mapa-pro');
+        const l = document.getElementById('vista-lista');
+        if(m.style.display === 'none') {
+            m.style.display = 'flex';
+            l.style.display = 'none';
+        }
+
+        // Vuelo
+        mapa.flyTo([encontradoLocal.lat, encontradoLocal.lng], 18, { animate: true, duration: 1.5 });
+        
+        // Abrir popup
         setTimeout(() => {
-            const marcador = marcadores.find(m => m.getLatLng().lat === sitio.lat && m.getLatLng().lng === sitio.lng);
+            // Buscamos el marcador exacto (usando el ID que guardamos antes o coordenadas)
+            const marcador = marcadores.find(m => 
+                (m.idSitio && (m.idSitio == encontradoLocal._id || m.idSitio == encontradoLocal.id)) ||
+                (m.getLatLng().lat === encontradoLocal.lat && m.getLatLng().lng === encontradoLocal.lng)
+            );
             if (marcador) marcador.openPopup();
         }, 1600); 
         return; 
     }
 
+    // 2. SI NO ESTÁ EN LOCAL, BUSCAMOS EN OPENSTREETMAP (Mundo real)
     Swal.fire({ title: 'Buscando...', text: `Viajando a: ${input.value}`, timer: 1500, showConfirmButton: false, toast: true, position: 'top-end', didOpen: () => Swal.showLoading() });
 
     try {
@@ -320,9 +345,21 @@ async function superBuscador() {
         if (d.length > 0) {
             mapa.flyTo([d[0].lat, d[0].lon], 13);
             mostrarSitios(locales); 
-        } else { Swal.fire('No encontrado', 'No existe.', 'error'); }
+        } else { Swal.fire('No encontrado', 'No existe en tu mapa ni en el mundo.', 'error'); }
     } catch(e) { console.error(e); }
 }
+
+// 🔥 ESCUCHA PARA LA TECLA ENTER EN EL BUSCADOR
+document.addEventListener('DOMContentLoaded', () => {
+    const inputBuscador = document.getElementById('buscador-texto');
+    if(inputBuscador) {
+        inputBuscador.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                superBuscador();
+            }
+        });
+    }
+});
 
 function centrarEnMi() {
     if (!mapa) return;
@@ -385,23 +422,30 @@ function alternarVista() {
 
 window.onload = cargarSitios;
 
-// LOGIN
+// ============================================
+// 🔒 LOGIN SEGURO (SESSION STORAGE)
+// ============================================
 function comprobarSesion() {
-    const sesion = localStorage.getItem('acceso_admin_token');
+    // CAMBIO: sessionStorage en lugar de localStorage
+    const sesion = sessionStorage.getItem('acceso_admin_token');
     if (sesion === 'true') { esAdmin = true; actualizarInterfazAdmin(); }
 }
 
 async function iniciarSesionAdmin() {
     const { value: password } = await Swal.fire({ title: 'Acceso Admin 👩‍💻', input: 'password', confirmButtonColor: '#006D77', showCancelButton: true });
     if (password === ADMIN_PIN) {
-        esAdmin = true; localStorage.setItem('acceso_admin_token', 'true');
+        esAdmin = true; 
+        // CAMBIO: Guardamos en sessionStorage (se borra al cerrar pestaña)
+        sessionStorage.setItem('acceso_admin_token', 'true');
         Swal.fire({ icon: 'success', title: 'Hola Sofi', text: 'Modo edición activado', timer: 1000, showConfirmButton: false });
         actualizarInterfazAdmin(); mostrarSitios(locales);
     } else if (password) { Swal.fire('Error', 'PIN incorrecto', 'error'); }
 }
 
 function cerrarSesionAdmin() {
-    esAdmin = false; localStorage.removeItem('acceso_admin_token');
+    esAdmin = false; 
+    // CAMBIO: Borramos de sessionStorage
+    sessionStorage.removeItem('acceso_admin_token');
     Swal.fire('Sesión cerrada', '', 'info');
     actualizarInterfazAdmin(); mostrarSitios(locales);
 }
