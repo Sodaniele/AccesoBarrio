@@ -31,12 +31,13 @@ const iconos = {
 function initMap() {
     if (mapa) return;
     mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
-    // En app.js, dentro de function initMap()
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
-}).addTo(mapa);
+    
+    // Mapa Estilo Voyager (CartoDB) - El diseño bonito
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(mapa);
 }
 
 function mostrarSitios(lista) {
@@ -131,7 +132,7 @@ function mostrarSitios(lista) {
     });
 }
 
-// Búsqueda Inteligente (Efecto Uber)
+// Búsqueda Inteligente (Efecto Uber) para el formulario de añadir
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     if (!calle) return Swal.fire('Escribe una dirección');
@@ -202,6 +203,114 @@ function buscarDesdeInicio() {
     }, 200);
 }
 
+// ============================================
+// ✨ NUEVAS FUNCIONES DE BÚSQUEDA Y GPS ✨
+// ============================================
+
+// Función SUPER BUSCADOR: Prioriza tus sitios, luego busca ciudades
+async function superBuscador() {
+    const input = document.getElementById('buscador-texto');
+    const texto = input.value.trim().toLowerCase(); 
+    
+    if (!texto) return; 
+
+    // 1. BÚSQUEDA INTERNA (Tus sitios guardados)
+    const encontrados = locales.filter(sitio => 
+        sitio.nombre.toLowerCase().includes(texto)
+    );
+
+    if (encontrados.length > 0) {
+        mostrarSitios(encontrados);
+        
+        const sitio = encontrados[0];
+        mapa.flyTo([sitio.lat, sitio.lng], 18, {
+            animate: true,
+            duration: 1.5
+        });
+
+        setTimeout(() => {
+            const marcador = marcadores.find(m => m.getLatLng().lat === sitio.lat && m.getLatLng().lng === sitio.lng);
+            if (marcador) marcador.openPopup();
+        }, 1600); 
+
+        return; 
+    }
+
+    // 2. BÚSQUEDA EXTERNA (Ciudades)
+    Swal.fire({
+        title: 'Buscando en el mundo...',
+        text: `Viajando a: ${input.value}`,
+        timer: 1500,
+        showConfirmButton: false,
+        backdrop: false,
+        toast: true,
+        position: 'top-end',
+        didOpen: () => Swal.showLoading()
+    });
+
+    try {
+        const respuesta = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(texto)}&limit=1`);
+        const datos = await respuesta.json();
+        
+        if (datos.length > 0) {
+            const lat = datos[0].lat;
+            const lon = datos[0].lon;
+            
+            mapa.flyTo([lat, lon], 13);
+            mostrarSitios(locales); 
+            
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'No encontrado',
+                text: 'No tenemos ese sitio registrado ni encontramos la ciudad.'
+            });
+        }
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+// Función para el botón GPS
+function centrarEnMi() {
+    if (!mapa) return;
+    
+    Swal.fire({
+        title: 'Localizando...',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        didOpen: () => Swal.showLoading()
+    });
+
+    mapa.locate({setView: true, maxZoom: 16});
+    
+    // Al encontrar la ubicación
+    mapa.on('locationfound', function(e) {
+        // Círculo de precisión
+        L.circle(e.latlng, {
+            color: '#4285F4',
+            fillColor: '#4285F4',
+            fillOpacity: 0.2,
+            radius: e.accuracy / 2
+        }).addTo(mapa);
+        
+        // Punto azul
+        L.circleMarker(e.latlng, {
+            radius: 8,
+            fillColor: '#4285F4',
+            color: '#fff',
+            weight: 2,
+            fillOpacity: 1
+        }).addTo(mapa);
+    });
+    
+    mapa.on('locationerror', function(e) {
+        Swal.fire('Error', 'No pudimos acceder a tu ubicación.', 'error');
+    });
+}
+
 function cargarResultados(tipo) {
     document.getElementById('pantalla-inicio').style.display = 'none';
     document.getElementById('pantalla-resultados').style.display = 'flex';
@@ -246,7 +355,7 @@ function alternarVista() {
 window.onload = cargarSitios;
 
 // ============================================
-// CÓDIGO NUEVO DEL PANEL DE ACCESIBILIDAD ♿
+// PANEL DE ACCESIBILIDAD ♿
 // ============================================
 
 const btnAccess = document.getElementById('btn-accesibilidad');

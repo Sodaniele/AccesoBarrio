@@ -65,10 +65,16 @@
         <div id="contenedor-mapa-pro">
             <div class="buscador-mapa-flotante">
                 <div class="buscador-pill">
-                    <span class="icono">🔍</span>
-                    <input type="text" id="buscador-texto" placeholder="Buscar en el mapa..." onkeyup="buscarTexto()">
+                    <input type="text" id="buscador-texto" placeholder="Buscar sitio (Nattia) o ciudad..." 
+                           onkeypress="if(event.key === 'Enter') superBuscador()">
+                    <button onclick="superBuscador()" style="background:none; border:none; cursor:pointer; font-size:18px;">
+                        🔍
+                    </button>
                 </div>
             </div>
+            
+            <button onclick="centrarEnMi()" class="btn-gps" title="Mi ubicación">📍</button>
+
             <div id="mapa"></div>
         </div>
 
