@@ -5,8 +5,8 @@ let mapaSel, marcadorSel;
 // ============================================
 // 🔐 CONFIGURACIÓN DE ADMIN
 // ============================================
-const ADMIN_PIN = "sofi2026"; // Tu contraseña secreta
-let esAdmin = false; // Por defecto, nadie es admin
+const ADMIN_PIN = "sofi2026"; 
+let esAdmin = false; 
 
 // Cargar Datos
 async function cargarSitios() {
@@ -15,13 +15,11 @@ async function cargarSitios() {
         locales = await r.json();
         document.getElementById('loading-overlay').style.display = 'none';
         
-        // Antes de mostrar, comprobamos si ya estabas logueada de antes
         comprobarSesion();
         mostrarSitios(locales);
     } catch(e) { console.error(e); }
 }
 
-// Iconos Completos
 const crearIcono = (emoji, color) => L.divIcon({
     html: `<div style="background-color: ${color}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3); font-size: 20px;">${emoji}</div>`,
     className: '', iconSize: [35, 35], iconAnchor: [17, 35], popupAnchor: [0, -35]
@@ -41,7 +39,6 @@ function initMap() {
     if (mapa) return;
     mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
     
-    // Mapa Estilo Voyager (CartoDB)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
@@ -49,7 +46,7 @@ function initMap() {
     }).addTo(mapa);
 }
 
-// MODIFICADO: Ahora sabe si debe mostrar los lápices de editar
+// ⚠️ AQUÍ ESTABA EL ERROR DEL CLICK ⚠️
 function mostrarSitios(lista) {
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
@@ -66,7 +63,7 @@ function mostrarSitios(lista) {
 
     Object.keys(grupos).sort().forEach(ciudad => {
         
-        // --- A. RENDERIZADO EN VISTA DE LISTA ---
+        // --- A. VISTA DE LISTA ---
         if (divContenedor) {
             const seccionCiudad = document.createElement('div');
             seccionCiudad.style.marginBottom = "20px";
@@ -81,9 +78,10 @@ function mostrarSitios(lista) {
                 card.className = 'item-lista'; 
                 const tagsLista = s.caracteristicas.map(c => `<span class="tag-accesibilidad">${c}</span>`).join('');
 
-                // LOGICA ADMIN: Botón Editar en Lista
+                // CORREGIDO: Usamos s._id || s.id para asegurar que cogemos el ID correcto
+                const idReal = s._id || s.id;
                 const btnEditar = esAdmin ? 
-                    `<button onclick="editarSitio('${s.id}')" style="cursor:pointer; border:none; background:none; font-size:16px;" title="Editar">✏️</button>` : '';
+                    `<button onclick="editarSitio('${idReal}')" style="cursor:pointer; border:none; background:none; font-size:16px;" title="Editar">✏️</button>` : '';
 
                 card.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:start;">
@@ -98,7 +96,7 @@ function mostrarSitios(lista) {
             divContenedor.appendChild(seccionCiudad);
         }
         
-        // --- B. RENDERIZADO EN EL MAPA ---
+        // --- B. MAPA ---
         grupos[ciudad].forEach(s => {
             let icono = iconos.default;
             if (s.caracteristicas.includes('Rampa') || s.caracteristicas.includes('Baño')) icono = iconos.movilidad;
@@ -113,9 +111,10 @@ function mostrarSitios(lista) {
                     `<span style="background:#e0f2f1; color:#006d77; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; margin-right:3px; display:inline-block; border:1px solid #b2dfdb;">${c}</span>`
                 ).join('');
 
-                // LOGICA ADMIN: Botón Editar en Popup
+                // CORREGIDO: ID en el Popup también
+                const idReal = s._id || s.id;
                 const btnEditarPopup = esAdmin ? 
-                    `<button onclick="editarSitio('${s.id}')" style="background:#eee; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer; margin-left:5px;">✏️</button>` : '';
+                    `<button onclick="editarSitio('${idReal}')" style="background:#eee; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer; margin-left:5px;">✏️</button>` : '';
 
                 const contenidoPopup = `
                     <div style="font-family: 'Poppins', sans-serif; min-width: 200px;">
@@ -127,7 +126,13 @@ function mostrarSitios(lista) {
                             ${s.descripcion || 'Sin descripción.'}
                         </p>
                         <div style="margin-bottom:8px;">${tagsPopup}</div>
-                        <p style="font-size:9px; color:#999; margin:0; text-transform:uppercase;">📍 ${s.localidad || ciudad}</p>
+                        
+                        <div style="display:flex; gap:5px; margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
+                             <a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" 
+                                style="background:#006D77; color:white; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🗺️ Ir</a>
+                             <a href="https://twitter.com/intent/tweet?text=Reporte%20Accesibilidad%20${s.nombre}" target="_blank"
+                                style="background:#ff4444; color:white; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🚨 Reportar</a>
+                        </div>
                     </div>
                 `;
 
@@ -138,20 +143,18 @@ function mostrarSitios(lista) {
     });
 }
 
-// Búsqueda para añadir/editar (Formulario)
+// Búsqueda Dirección
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     if (!calle) return Swal.fire('Escribe una dirección');
     
     let busqueda = calle.replace(/calle|av.|avenida/gi, "").trim();
-    
     const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(busqueda)}&addressdetails=1&limit=1`);
     const data = await r.json();
     
     if (data.length > 0) {
         const info = data[0];
         localidadDetectada = `${(info.address.city || info.address.town || "Ciudad").toUpperCase()}, ${(info.address.country || "").toUpperCase()}`;
-        
         const lat = parseFloat(info.lat);
         const lon = parseFloat(info.lon);
         
@@ -161,9 +164,7 @@ async function buscarDireccion() {
             marcadorSel = L.marker([lat, lon], {draggable: true}).addTo(mapaSel);
             marcadorSel.on('dragend', (e) => actualizarDireccionDesdePin(e.target.getLatLng().lat, e.target.getLatLng().lng));
         }
-    } else {
-        Swal.fire('No encontrado. Prueba agregar la ciudad.');
-    }
+    } else { Swal.fire('No encontrado. Prueba agregar la ciudad.'); }
 }
 
 async function actualizarDireccionDesdePin(lat, lng) {
@@ -175,7 +176,7 @@ async function actualizarDireccionDesdePin(lat, lng) {
     }
 }
 
-// MODIFICADO: Ahora soporta CREAR y EDITAR
+// GUARDAR / EDITAR
 async function guardarSitio() {
     const nombre = document.getElementById('nombre').value;
     const desc = document.getElementById('descripcion').value;
@@ -191,15 +192,19 @@ async function guardarSitio() {
     };
 
     if (editandoId) {
-        // MODO EDICIÓN (PUT)
-        await fetch(`/api/sitios/${editandoId}`, { 
+        // MODO EDICIÓN
+        console.log("Editando ID:", editandoId); // Debug
+        const res = await fetch(`/api/sitios/${editandoId}`, { 
             method: 'PUT', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(datos) 
         });
-        Swal.fire('¡Actualizado!', 'El sitio ha sido modificado.', 'success');
+        
+        if(res.ok) Swal.fire('¡Actualizado!', 'Sitio modificado.', 'success');
+        else Swal.fire('Error', 'No se pudo editar. ¿El servidor tiene la ruta PUT?', 'error');
+
     } else {
-        // MODO CREACIÓN (POST)
+        // MODO CREACIÓN
         await fetch('/api/sitios', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
@@ -209,7 +214,7 @@ async function guardarSitio() {
     }
 
     editandoId = null;
-    location.reload();
+    setTimeout(() => location.reload(), 1500);
 }
 
 function buscarDesdeInicio() {
@@ -224,7 +229,7 @@ function buscarDesdeInicio() {
     }, 200);
 }
 
-// Super Buscador
+// SUPER BUSCADOR
 async function superBuscador() {
     const input = document.getElementById('buscador-texto');
     const texto = input.value.trim().toLowerCase(); 
@@ -243,7 +248,7 @@ async function superBuscador() {
         return; 
     }
 
-    Swal.fire({ title: 'Buscando en el mundo...', text: `Viajando a: ${input.value}`, timer: 1500, showConfirmButton: false, toast: true, position: 'top-end', didOpen: () => Swal.showLoading() });
+    Swal.fire({ title: 'Buscando...', text: `Viajando a: ${input.value}`, timer: 1500, showConfirmButton: false, toast: true, position: 'top-end', didOpen: () => Swal.showLoading() });
 
     try {
         const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(texto)}&limit=1`);
@@ -251,9 +256,7 @@ async function superBuscador() {
         if (d.length > 0) {
             mapa.flyTo([d[0].lat, d[0].lon], 13);
             mostrarSitios(locales); 
-        } else {
-            Swal.fire('No encontrado', 'No existe en nuestra base ni en el mapa global.', 'error');
-        }
+        } else { Swal.fire('No encontrado', 'No existe.', 'error'); }
     } catch(e) { console.error(e); }
 }
 
@@ -299,18 +302,14 @@ function abrirFormulario() {
 
 function cerrarModal() { 
     document.getElementById('modal-anadir').style.display = 'none'; 
-    // MODIFICADO: Reseteamos el modo edición para que no se quede enganchado
     editandoId = null;
     document.getElementById('nombre').value = "";
     document.getElementById('descripcion').value = "";
     document.getElementById('input-direccion').value = "";
-    // Reseteamos checkboxes
     document.querySelectorAll('.cat-check').forEach(c => c.checked = false);
-    // Cambiamos texto botón a "Guardar" por si decía "Actualizar"
     const btn = document.querySelector('#modal-anadir .btn-principal');
     if(btn) btn.textContent = "Guardar Sitio";
 }
-
 function cerrarModalFiltros() { document.getElementById('modal-filtros').style.display = 'none'; }
 function abrirModalFiltros() { document.getElementById('modal-filtros').style.display = 'flex'; }
 function alternarVista() {
@@ -322,64 +321,30 @@ function alternarVista() {
 
 window.onload = cargarSitios;
 
-// ============================================
-// 🔐 FUNCIONES DE GESTIÓN DE SESIÓN (LOGIN)
-// ============================================
-
-// 1. Comprueba al arrancar si ya estás logueada de antes
+// LOGIN
 function comprobarSesion() {
     const sesion = localStorage.getItem('acceso_admin_token');
-    if (sesion === 'true') {
-        esAdmin = true;
-        actualizarInterfazAdmin();
-    }
+    if (sesion === 'true') { esAdmin = true; actualizarInterfazAdmin(); }
 }
 
-// 2. Iniciar Sesión (Pide clave)
 async function iniciarSesionAdmin() {
-    const { value: password } = await Swal.fire({
-        title: 'Acceso Administradora 👩‍💻',
-        input: 'password',
-        inputPlaceholder: 'Introduce tu PIN',
-        confirmButtonColor: '#006D77',
-        showCancelButton: true
-    });
-
+    const { value: password } = await Swal.fire({ title: 'Acceso Admin 👩‍💻', input: 'password', confirmButtonColor: '#006D77', showCancelButton: true });
     if (password === ADMIN_PIN) {
-        esAdmin = true;
-        localStorage.setItem('acceso_admin_token', 'true'); // Guardar sesión
-        
-        await Swal.fire({
-            icon: 'success',
-            title: '¡Hola Sofi!',
-            text: 'Modo edición activado ✏️',
-            timer: 1500,
-            showConfirmButton: false
-        });
-        
-        actualizarInterfazAdmin();
-        mostrarSitios(locales); // Recargar para ver lápices
-    } else if (password) {
-        Swal.fire('Error', 'PIN incorrecto', 'error');
-    }
+        esAdmin = true; localStorage.setItem('acceso_admin_token', 'true');
+        Swal.fire({ icon: 'success', title: 'Hola Sofi', text: 'Modo edición activado', timer: 1000, showConfirmButton: false });
+        actualizarInterfazAdmin(); mostrarSitios(locales);
+    } else if (password) { Swal.fire('Error', 'PIN incorrecto', 'error'); }
 }
 
-// 3. Cerrar Sesión
 function cerrarSesionAdmin() {
-    esAdmin = false;
-    localStorage.removeItem('acceso_admin_token');
-    
-    Swal.fire('Sesión cerrada', 'Modo lectura activado', 'info');
-    
-    actualizarInterfazAdmin();
-    mostrarSitios(locales); // Recargar para ocultar lápices
+    esAdmin = false; localStorage.removeItem('acceso_admin_token');
+    Swal.fire('Sesión cerrada', '', 'info');
+    actualizarInterfazAdmin(); mostrarSitios(locales);
 }
 
-// 4. Cambia botones Login/Logout
 function actualizarInterfazAdmin() {
     const btnLogin = document.getElementById('btn-login');
     const btnLogout = document.getElementById('btn-logout');
-    
     if (esAdmin) {
         if(btnLogin) btnLogin.style.display = 'none';
         if(btnLogout) btnLogout.style.display = 'inline-block';
@@ -389,28 +354,22 @@ function actualizarInterfazAdmin() {
     }
 }
 
-// 5. Función que prepara el formulario para EDITAR
+// ⚠️ ESTA FUNCIÓN AHORA SÍ RECIBE BIEN EL ID
 function editarSitio(id) {
+    console.log("Intentando editar ID:", id); // DEBUG EN CONSOLA
     const sitio = locales.find(l => l.id == id || l._id == id);
-    if (!sitio) return;
+    if (!sitio) { console.error("No se encontró el sitio con id", id); return; }
 
-    editandoId = id; 
-    
-    // Rellenamos datos viejos
+    editandoId = id; // Guardamos el ID para luego
     document.getElementById('nombre').value = sitio.nombre;
     document.getElementById('descripcion').value = sitio.descripcion;
-    document.querySelectorAll('.cat-check').forEach(chk => {
-        chk.checked = sitio.caracteristicas.includes(chk.value);
-    });
-
+    document.querySelectorAll('.cat-check').forEach(chk => { chk.checked = sitio.caracteristicas.includes(chk.value); });
     localidadDetectada = sitio.localidad;
     
-    // Abrimos modal y cambiamos botón
     abrirFormulario();
     const btnGuardar = document.querySelector('#modal-anadir .btn-principal');
     if(btnGuardar) btnGuardar.textContent = "Actualizar Sitio 💾";
 
-    // Mover mapa pequeño
     setTimeout(() => {
         if(mapaSel) {
             mapaSel.setView([sitio.lat, sitio.lng], 16);
@@ -420,27 +379,16 @@ function editarSitio(id) {
     }, 500);
 }
 
-// ============================================
-// PANEL DE ACCESIBILIDAD ♿
-// ============================================
-
+// PANEL ACCESIBILIDAD
 const btnAccess = document.getElementById('btn-accesibilidad');
 const panelAccess = document.getElementById('panel-accesibilidad');
 let zoomLevel = 1;
-
 if(btnAccess && panelAccess) {
     btnAccess.addEventListener('click', () => {
-        const isHidden = panelAccess.classList.contains('hidden');
-        if (isHidden) {
-            panelAccess.classList.remove('hidden');
-            panelAccess.setAttribute('aria-hidden', 'false');
-        } else {
-            panelAccess.classList.add('hidden');
-            panelAccess.setAttribute('aria-hidden', 'true');
-        }
+        panelAccess.classList.toggle('hidden');
+        panelAccess.setAttribute('aria-hidden', panelAccess.classList.contains('hidden'));
     });
 }
-
 window.cambiarTexto = function(d) { zoomLevel += d * 0.1; if(zoomLevel>1.8)zoomLevel=1.8; if(zoomLevel<0.8)zoomLevel=0.8; document.body.style.transform=`scale(${zoomLevel})`; document.body.style.transformOrigin="top center"; document.body.style.width=`${100/zoomLevel}%`; }
 window.toggleContraste = function() { document.body.classList.toggle('high-contrast'); }
 window.toggleDislexia = function() { document.body.classList.toggle('dyslexia-font'); }
