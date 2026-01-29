@@ -340,3 +340,18 @@ div:where(.swal2-container) { z-index: 200000 !important; }
         max-width: 450px;
     }
 }
+/* EFECTO MÁQUINA DE ESCRIBIR */
+#subtitulo-dinamico {
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    opacity: 0.8;
+    min-height: 1.5em;
+    border-right: 2px solid var(--teal); /* Este es el cursor */
+    display: inline-block;
+    padding-right: 5px;
+    animation: parpadeo 0.7s infinite;
+}
+
+@keyframes parpadeo {
+    50% { border-color: transparent; }
+}
