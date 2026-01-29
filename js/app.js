@@ -1,6 +1,8 @@
 let mapa, marcadores = [], locales = [], editandoId = null;
 let localidadDetectada = "";
 let mapaSel, marcadorSel;
+// Variable global para guardar los grupos y poder navegar
+let gruposPorCiudad = {}; 
 
 // ============================================
 // 🔐 CONFIGURACIÓN DE ADMIN
@@ -40,64 +42,57 @@ function initMap() {
     mapa = L.map('mapa', {zoomControl: false}).setView([40.4167, -3.7033], 13);
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20
     }).addTo(mapa);
 }
 
-// ⚠️ AQUÍ ESTABA EL ERROR DEL CLICK ⚠️
+// ⚠️ FUNCIÓN MODIFICADA: CREA "CARPETAS" DE CIUDADES EN LA LISTA
 function mostrarSitios(lista) {
+    // 1. Limpieza del Mapa (Esto no cambia)
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
 
-    const divContenedor = document.getElementById('contenedor-items-lista');
-    if (divContenedor) divContenedor.innerHTML = '';
-
-    const grupos = lista.reduce((acc, s) => {
+    // 2. Agrupamos los datos
+    gruposPorCiudad = lista.reduce((acc, s) => {
         const loc = s.localidad || 'UBICACIÓN GENERAL';
         if (!acc[loc]) acc[loc] = [];
         acc[loc].push(s);
         return acc;
     }, {});
 
-    Object.keys(grupos).sort().forEach(ciudad => {
-        
-        // --- A. VISTA DE LISTA ---
-        if (divContenedor) {
-            const seccionCiudad = document.createElement('div');
-            seccionCiudad.style.marginBottom = "20px";
-            seccionCiudad.innerHTML = `
-                <h3 style="color:#006D77; margin-bottom:10px; border-bottom:2px solid #e0f2f1; padding-bottom:5px;">
-                    📍 ${ciudad} <span style="font-size:12px; color:#666; font-weight:400;">(${grupos[ciudad].length})</span>
-                </h3>
+    // 3. RENDERIZADO DE LA LISTA (MODO CARPETAS) 📂
+    const divContenedor = document.getElementById('contenedor-items-lista');
+    if (divContenedor) {
+        divContenedor.innerHTML = ''; // Limpiamos
+
+        // Creamos la rejilla de cartas
+        const grid = document.createElement('div');
+        grid.className = 'grid-ciudades';
+
+        Object.keys(gruposPorCiudad).sort().forEach(ciudad => {
+            const cantidad = gruposPorCiudad[ciudad].length;
+            
+            // Carta de Ciudad
+            const card = document.createElement('div');
+            card.className = 'card-ciudad';
+            card.onclick = () => verCiudadDetalle(ciudad); // Al hacer clic, entramos
+
+            card.innerHTML = `
+                <div class="icono-ciudad">🏙️</div>
+                <h3>${ciudad}</h3>
+                <span>${cantidad} sitios</span>
             `;
+            grid.appendChild(card);
+        });
 
-            grupos[ciudad].forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'item-lista'; 
-                const tagsLista = s.caracteristicas.map(c => `<span class="tag-accesibilidad">${c}</span>`).join('');
-
-                // CORREGIDO: Usamos s._id || s.id para asegurar que cogemos el ID correcto
-                const idReal = s._id || s.id;
-                const btnEditar = esAdmin ? 
-                    `<button onclick="editarSitio('${idReal}')" style="cursor:pointer; border:none; background:none; font-size:16px;" title="Editar">✏️</button>` : '';
-
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
-                        ${btnEditar}
-                    </div>
-                    <p style="font-size:12px; color:#666; margin:5px 0;">${s.descripcion || 'Sin descripción'}</p>
-                    <div style="margin-top:5px;">${tagsLista}</div>
-                `;
-                seccionCiudad.appendChild(card);
-            });
-            divContenedor.appendChild(seccionCiudad);
-        }
+        divContenedor.appendChild(grid);
+    }
         
-        // --- B. MAPA ---
-        grupos[ciudad].forEach(s => {
+    // 4. RENDERIZADO DEL MAPA (Marcadores normales)
+    Object.keys(gruposPorCiudad).forEach(ciudad => {
+        gruposPorCiudad[ciudad].forEach(s => {
             let icono = iconos.default;
             if (s.caracteristicas.includes('Rampa') || s.caracteristicas.includes('Baño')) icono = iconos.movilidad;
             else if (s.caracteristicas.includes('Calma')) icono = iconos.calma;
@@ -111,7 +106,6 @@ function mostrarSitios(lista) {
                     `<span style="background:#e0f2f1; color:#006d77; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:700; margin-right:3px; display:inline-block; border:1px solid #b2dfdb;">${c}</span>`
                 ).join('');
 
-                // CORREGIDO: ID en el Popup también
                 const idReal = s._id || s.id;
                 const btnEditarPopup = esAdmin ? 
                     `<button onclick="editarSitio('${idReal}')" style="background:#eee; border:none; border-radius:50%; width:25px; height:25px; cursor:pointer; margin-left:5px;">✏️</button>` : '';
@@ -126,7 +120,6 @@ function mostrarSitios(lista) {
                             ${s.descripcion || 'Sin descripción.'}
                         </p>
                         <div style="margin-bottom:8px;">${tagsPopup}</div>
-                        
                         <div style="display:flex; gap:5px; margin-top:10px; border-top:1px solid #eee; padding-top:10px;">
                              <a href="https://www.google.com/maps?q=${s.lat},${s.lng}" target="_blank" 
                                 style="background:#006D77; color:white; text-decoration:none; padding:5px 10px; border-radius:5px; font-size:11px; flex:1; text-align:center;">🗺️ Ir</a>
@@ -135,7 +128,6 @@ function mostrarSitios(lista) {
                         </div>
                     </div>
                 `;
-
                 const m = L.marker([s.lat, s.lng], { icon: icono }).addTo(mapa).bindPopup(contenidoPopup);
                 marcadores.push(m);
             }
@@ -143,7 +135,61 @@ function mostrarSitios(lista) {
     });
 }
 
-// Búsqueda Dirección
+// ✨ NUEVA FUNCIÓN: ENTRAR EN UNA CARPETA DE CIUDAD
+function verCiudadDetalle(ciudad) {
+    const divContenedor = document.getElementById('contenedor-items-lista');
+    divContenedor.innerHTML = ''; // Borramos las carpetas
+
+    // 1. Header con botón volver
+    const header = document.createElement('div');
+    header.className = 'header-carpeta';
+    header.innerHTML = `
+        <button class="btn-volver-carpetas" onclick="mostrarSitios(locales)">⬅ Volver</button>
+        <h3 style="margin:0; color:#006d77;">${ciudad}</h3>
+    `;
+    divContenedor.appendChild(header);
+
+    // 2. Lista de sitios de esa ciudad
+    const sitios = gruposPorCiudad[ciudad];
+    
+    sitios.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'item-lista';
+        const tagsLista = s.caracteristicas.map(c => `<span class="tag-accesibilidad">${c}</span>`).join('');
+        const idReal = s._id || s.id;
+        const btnEditar = esAdmin ? 
+            `<button onclick="editarSitio('${idReal}')" style="cursor:pointer; border:none; background:none; font-size:16px;" title="Editar">✏️</button>` : '';
+
+        // Hacemos que al hacer clic en la tarjeta de la lista, el mapa vuele allí
+        card.onclick = (e) => {
+            // Evitar que salte si damos al editar
+            if(e.target.tagName === 'BUTTON') return;
+            // Cambiar a vista mapa
+            alternarVista();
+            // Volar
+            mapa.flyTo([s.lat, s.lng], 18);
+            setTimeout(() => {
+                const m = marcadores.find(marker => marker.getLatLng().lat === s.lat && marker.getLatLng().lng === s.lng);
+                if(m) m.openPopup();
+            }, 500);
+        };
+
+        card.style.cursor = "pointer"; // Para que sepan que es clicable
+
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <h3 style="margin:0; color:#006d77; font-size:16px;">${s.nombre}</h3>
+                ${btnEditar}
+            </div>
+            <p style="font-size:12px; color:#666; margin:5px 0;">${s.descripcion || 'Sin descripción'}</p>
+            <div style="margin-top:5px;">${tagsLista}</div>
+        `;
+        divContenedor.appendChild(card);
+    });
+}
+
+// RESTO DE FUNCIONES IGUAL QUE ANTES...
+
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
     if (!calle) return Swal.fire('Escribe una dirección');
@@ -176,7 +222,6 @@ async function actualizarDireccionDesdePin(lat, lng) {
     }
 }
 
-// GUARDAR / EDITAR
 async function guardarSitio() {
     const nombre = document.getElementById('nombre').value;
     const desc = document.getElementById('descripcion').value;
@@ -192,29 +237,26 @@ async function guardarSitio() {
     };
 
     if (editandoId) {
-        // MODO EDICIÓN
-        console.log("Editando ID:", editandoId); // Debug
         const res = await fetch(`/api/sitios/${editandoId}`, { 
             method: 'PUT', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(datos) 
         });
         
-        if(res.ok) Swal.fire('¡Actualizado!', 'Sitio modificado.', 'success');
-        else Swal.fire('Error', 'No se pudo editar. ¿El servidor tiene la ruta PUT?', 'error');
-
+        cerrarModal(); 
+        if(res.ok) await Swal.fire('¡Actualizado!', 'Sitio modificado.', 'success');
+        else await Swal.fire('Error', 'Error al editar.', 'error');
     } else {
-        // MODO CREACIÓN
         await fetch('/api/sitios', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(datos) 
         });
-        Swal.fire('¡Guardado!', 'Nuevo sitio añadido.', 'success');
+        cerrarModal();
+        await Swal.fire('¡Guardado!', 'Nuevo sitio añadido.', 'success');
     }
-
     editandoId = null;
-    setTimeout(() => location.reload(), 1500);
+    location.reload();
 }
 
 function buscarDesdeInicio() {
@@ -229,7 +271,6 @@ function buscarDesdeInicio() {
     }, 200);
 }
 
-// SUPER BUSCADOR
 async function superBuscador() {
     const input = document.getElementById('buscador-texto');
     const texto = input.value.trim().toLowerCase(); 
@@ -354,13 +395,10 @@ function actualizarInterfazAdmin() {
     }
 }
 
-// ⚠️ ESTA FUNCIÓN AHORA SÍ RECIBE BIEN EL ID
 function editarSitio(id) {
-    console.log("Intentando editar ID:", id); // DEBUG EN CONSOLA
     const sitio = locales.find(l => l.id == id || l._id == id);
-    if (!sitio) { console.error("No se encontró el sitio con id", id); return; }
-
-    editandoId = id; // Guardamos el ID para luego
+    if (!sitio) return;
+    editandoId = id; 
     document.getElementById('nombre').value = sitio.nombre;
     document.getElementById('descripcion').value = sitio.descripcion;
     document.querySelectorAll('.cat-check').forEach(chk => { chk.checked = sitio.caracteristicas.includes(chk.value); });
