@@ -277,3 +277,11 @@ body.stop-animations * {
   animation: none !important;
   transition: none !important;
 }
+/* ========================================= */
+/* ARREGLO Z-INDEX ALERTAS (SWEETALERT)      */
+/* ========================================= */
+
+/* Le ponemos un índice absurdo para que gane al modal */
+div:where(.swal2-container) {
+    z-index: 200000 !important; 
+}
