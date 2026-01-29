@@ -43,14 +43,54 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 
 /* Grilla 2x2 (Categorías Home) */
 .grid-categorias { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; }
+
+/* ========================================= */
+/* ✨ BOTONES DE CATEGORÍA CON EFECTO POP ✨ */
+/* ========================================= */
 .boton-cat {
-    background: white; border: none; border-radius: 25px; aspect-ratio: 1 / 1;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.06); cursor: pointer; transition: 0.3s;
+    background: white; 
+    border: none; 
+    border-radius: 25px; 
+    aspect-ratio: 1 / 1;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06); 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    overflow: visible; 
 }
-.boton-cat:hover { transform: scale(1.03); }
-.boton-cat .emoji { font-size: 40px; margin-bottom: 5px; }
-.boton-cat .txt { font-weight: 700; color: var(--teal); font-size: 14px; }
+
+/* Configuración inicial del Emoji y Texto */
+.boton-cat .emoji { 
+    font-size: 40px; 
+    margin-bottom: 5px; 
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.boton-cat .txt { 
+    font-weight: 700; 
+    color: var(--teal); 
+    font-size: 14px; 
+    transition: all 0.3s ease;
+}
+
+/* 🔥 LO QUE PASA AL ACERCAR EL RATÓN (:HOVER) */
+.boton-cat:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 15px 30px rgba(0, 109, 119, 0.2); 
+}
+
+.boton-cat:hover .emoji {
+    transform: scale(1.5) rotate(15deg); /* ¡POP! */
+}
+
+.boton-cat:hover .txt {
+    color: var(--coral);
+    transform: scale(1.15);
+}
 
 .boton-anadir-home {
     margin-top: 35px; background: var(--coral); color: white; border: none;
