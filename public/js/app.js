@@ -636,3 +636,35 @@ function typeWriter() {
 
 // Iniciar al cargar
 document.addEventListener('DOMContentLoaded', typeWriter);
+// ==========================================
+// 🔗 QR PARA COMPARTIR LA WEB (GLOBO)
+// ==========================================
+function mostrarQRGeneral() {
+    // Esta es la dirección de TU página web
+    const urlWeb = "https://accesobarrio.onrender.com/"; 
+
+    Swal.fire({
+        title: '¡Comparte AccesoBarrio!',
+        text: 'Escanea para abrir la app en otro móvil',
+        html: `
+            <div style="display:flex; justify-content:center; align-items:center; flex-direction:column; margin:10px;">
+                <div id="qrcode-general" style="padding:10px; background:white; border-radius:10px; border:2px dashed #eee;"></div>
+                <p style="margin-top:15px; font-size:12px; color:#888;">Juntos hacemos un barrio más inclusivo 💜</p>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        background: '#fff',
+        didOpen: () => {
+            // Dibujamos el QR
+            new QRCode(document.getElementById("qrcode-general"), {
+                text: urlWeb,
+                width: 180,
+                height: 180,
+                colorDark : "#FF7E6B", // Color Coral para este QR
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+    });
+}
