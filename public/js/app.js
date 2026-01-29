@@ -19,6 +19,10 @@ async function cargarSitios() {
         
         comprobarSesion();
         mostrarSitios(locales);
+        
+        // 👇 AÑADIDO: Actualizamos los contadores y curiosidades al cargar
+        actualizarInfoPortada();
+
     } catch(e) { console.error(e); }
 }
 
@@ -508,3 +512,43 @@ window.toggleContraste = function() { document.body.classList.toggle('high-contr
 window.toggleDislexia = function() { document.body.classList.toggle('dyslexia-font'); }
 window.toggleAnimaciones = function() { document.body.classList.toggle('stop-animations'); }
 window.resetAccesibilidad = function() { zoomLevel = 1; document.body.style.transform=''; document.body.style.width=''; document.body.classList.remove('high-contrast', 'dyslexia-font', 'stop-animations'); }
+
+
+// ============================================
+// 📊 LÓGICA DE IMPACTO Y CURIOSIDADES (NUEVO)
+// ============================================
+
+// 1. Frases aleatorias de accesibilidad
+const curiosidades = [
+    "El 'Aro Magnético' permite a las personas con audífonos escuchar el sonido directamente en su oído sin ruido ambiente.",
+    "El ancho mínimo para que pase una silla de ruedas cómodamente es de 80 cm, aunque lo ideal son 90 cm.",
+    "La señalización podotáctil (suelo con relieve) avisa a las personas ciegas de cambios de nivel o peligros.",
+    "El contraste de colores en los carteles es vital para personas con baja visión. Texto oscuro sobre fondo claro es lo mejor.",
+    "La 'Lectura Fácil' usa frases cortas y sencillas para ayudar a personas con dificultades cognitivas a entender la información.",
+    "Un baño accesible debe tener barras de apoyo a ambos lados del inodoro y espacio para girar la silla 360º.",
+    "La accesibilidad no solo ayuda a personas con discapacidad, ¡también a padres con carritos, repartidores y ancianos!"
+];
+
+// 2. Función para actualizar la portada
+function actualizarInfoPortada() {
+    // A) Actualizar Curiosidad (Aleatorio)
+    const textoElement = document.getElementById('texto-curiosidad');
+    if (textoElement) {
+        const fraseRandom = curiosidades[Math.floor(Math.random() * curiosidades.length)];
+        textoElement.innerText = `"${fraseRandom}"`;
+    }
+
+    // B) Actualizar Contadores (Con animación sencilla)
+    const contadorSitios = document.getElementById('contador-sitios');
+    const contadorTags = document.getElementById('contador-tags');
+    
+    if (contadorSitios && locales.length > 0) {
+        // Ponemos el número de sitios reales
+        contadorSitios.innerText = locales.length;
+        
+        // Calculamos cuántas características hay en total (suma de todos los tags)
+        // Esto impresiona más porque el número es más alto
+        const totalTags = locales.reduce((total, sitio) => total + sitio.caracteristicas.length, 0);
+        contadorTags.innerText = totalTags;
+    }
+}
