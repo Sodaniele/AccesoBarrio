@@ -50,7 +50,7 @@ function initMap() {
 
 // ⚠️ FUNCIÓN MODIFICADA: CREA "CARPETAS" DE CIUDADES EN LA LISTA
 function mostrarSitios(lista) {
-    // 1. Limpieza del Mapa (Esto no cambia)
+    // 1. Limpieza del Mapa
     if (mapa) { marcadores.forEach(m => mapa.removeLayer(m)); }
     marcadores = [];
 
@@ -188,7 +188,7 @@ function verCiudadDetalle(ciudad) {
     });
 }
 
-// RESTO DE FUNCIONES IGUAL QUE ANTES...
+// RESTO DE FUNCIONES...
 
 async function buscarDireccion() {
     const calle = document.getElementById('input-direccion').value;
@@ -213,15 +213,31 @@ async function buscarDireccion() {
     } else { Swal.fire('No encontrado. Prueba agregar la ciudad.'); }
 }
 
+// 🛡️ FUNCIÓN BLINDADA PARA DETECTAR CIUDAD
 async function actualizarDireccionDesdePin(lat, lng) {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
-    const data = await r.json();
-    if (data && data.address) {
-        document.getElementById('input-direccion').value = (data.address.road || "") + " " + (data.address.house_number || "");
-        localidadDetectada = `${(data.address.city || "Ciudad").toUpperCase()}, ${(data.address.country || "").toUpperCase()}`;
-    }
+    try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+        const data = await r.json();
+        if (data && data.address) {
+            document.getElementById('input-direccion').value = (data.address.road || "") + " " + (data.address.house_number || "");
+            
+            // Lógica agresiva para encontrar el nombre de la ciudad
+            const ciudadEncontrada = data.address.city || 
+                                     data.address.town || 
+                                     data.address.village || 
+                                     data.address.municipality || 
+                                     data.address.county || 
+                                     "Desconocida";
+            const pais = data.address.country || "";
+            localidadDetectada = `${ciudadEncontrada.toUpperCase()}, ${pais.toUpperCase()}`;
+            console.log("Localidad detectada:", localidadDetectada);
+            return true;
+        }
+    } catch (e) { console.error("Error detectando ciudad:", e); }
+    return false;
 }
 
+// GUARDAR / EDITAR (CON ARREGLO DE MODAL)
 async function guardarSitio() {
     const nombre = document.getElementById('nombre').value;
     const desc = document.getElementById('descripcion').value;
@@ -237,24 +253,31 @@ async function guardarSitio() {
     };
 
     if (editandoId) {
+        // EDITAR
         const res = await fetch(`/api/sitios/${editandoId}`, { 
             method: 'PUT', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(datos) 
         });
         
-        cerrarModal(); 
+        cerrarModal(); // CERRAR PRIMERO
+        
         if(res.ok) await Swal.fire('¡Actualizado!', 'Sitio modificado.', 'success');
         else await Swal.fire('Error', 'Error al editar.', 'error');
+
     } else {
+        // CREAR
         await fetch('/api/sitios', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json' }, 
             body: JSON.stringify(datos) 
         });
-        cerrarModal();
+        
+        cerrarModal(); // CERRAR PRIMERO
+        
         await Swal.fire('¡Guardado!', 'Nuevo sitio añadido.', 'success');
     }
+    
     editandoId = null;
     location.reload();
 }
@@ -395,15 +418,24 @@ function actualizarInterfazAdmin() {
     }
 }
 
-function editarSitio(id) {
+// 🛡️ EDICIÓN CON PARCHE AUTOMÁTICO DE CIUDAD
+async function editarSitio(id) {
     const sitio = locales.find(l => l.id == id || l._id == id);
     if (!sitio) return;
     editandoId = id; 
     document.getElementById('nombre').value = sitio.nombre;
     document.getElementById('descripcion').value = sitio.descripcion;
     document.querySelectorAll('.cat-check').forEach(chk => { chk.checked = sitio.caracteristicas.includes(chk.value); });
-    localidadDetectada = sitio.localidad;
     
+    // Mostramos aviso de "Calculando..."
+    Swal.fire({ title: 'Detectando ubicación...', didOpen: () => Swal.showLoading(), backdrop: false, toast: true, position: 'top-end', showConfirmButton: false });
+
+    // BUSCAMOS LA CIUDAD AUTOMÁTICAMENTE
+    await actualizarDireccionDesdePin(sitio.lat, sitio.lng);
+    
+    // AVISAMOS QUE LA ENCONTRAMOS
+    Swal.fire({ icon: 'success', title: 'Ubicación actualizada', text: `Carpeta: ${localidadDetectada}`, timer: 2000, toast: true, position: 'top-end', showConfirmButton: false });
+
     abrirFormulario();
     const btnGuardar = document.querySelector('#modal-anadir .btn-principal');
     if(btnGuardar) btnGuardar.textContent = "Actualizar Sitio 💾";
