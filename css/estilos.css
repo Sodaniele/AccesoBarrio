@@ -144,3 +144,136 @@ p { font-size: 1.1rem; margin-bottom: 25px; opacity: 0.8; }
 @keyframes spin { to { transform: rotate(360deg); } }
 #mapa-seleccion { height: 150px; border-radius: 15px; margin: 10px 0; border: 2px solid #eee; }
 .firma-autor { text-align: center; margin-top: 30px; opacity: 0.6; font-size: 10px; }
+
+/* ========================================= */
+/* PANEL DE ACCESIBILIDAD (NUEVO)      */
+/* ========================================= */
+
+/* Botón flotante */
+.access-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: var(--teal); /* Usa tu color corporativo */
+  color: white;
+  border-radius: 50%;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  z-index: 100000; /* Por encima de todo */
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.access-btn:hover {
+  transform: scale(1.1);
+  background-color: var(--coral);
+}
+
+/* El Panel */
+.access-panel {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 280px;
+  background: white;
+  border: 2px solid var(--teal);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  z-index: 100000;
+  font-family: 'Poppins', sans-serif;
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+.access-panel.hidden {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.access-panel h3 {
+  margin-top: 0;
+  color: var(--teal);
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.access-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.access-option span {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.access-option button {
+  padding: 8px 12px;
+  cursor: pointer;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.access-option button:hover {
+    background: var(--teal-light);
+    border-color: var(--teal);
+    color: var(--teal);
+}
+
+.btn-reset {
+  width: 100%;
+  background: var(--coral);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.btn-reset:hover {
+    background: #ff6b57;
+}
+
+/* CLASES DE EFECTO (Que activa JS) */
+body.high-contrast {
+  background-color: #000 !important;
+  background-image: none !important;
+  color: #ffcc00 !important; /* Amarillo sobre negro (estándar ONCE) */
+}
+body.high-contrast * {
+  background-color: #000 !important;
+  color: #ffcc00 !important;
+  border-color: #ffcc00 !important;
+  box-shadow: none !important;
+}
+
+body.dyslexia-font {
+  font-family: 'Comic Sans MS', 'Verdana', sans-serif !important; 
+  line-height: 1.8 !important;
+  word-spacing: 2px !important;
+}
+
+body.stop-animations * {
+  animation: none !important;
+  transition: none !important;
+}

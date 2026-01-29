@@ -239,3 +239,63 @@ function alternarVista() {
 }
 
 window.onload = cargarSitios;
+
+// ============================================
+// CÓDIGO NUEVO DEL PANEL DE ACCESIBILIDAD ♿
+// ============================================
+
+const btnAccess = document.getElementById('btn-accesibilidad');
+const panelAccess = document.getElementById('panel-accesibilidad');
+let zoomLevel = 1; // Para el tamaño de fuente
+
+// 1. Abrir/Cerrar Panel
+if(btnAccess && panelAccess) {
+    btnAccess.addEventListener('click', () => {
+        const isHidden = panelAccess.classList.contains('hidden');
+        if (isHidden) {
+            panelAccess.classList.remove('hidden');
+            panelAccess.setAttribute('aria-hidden', 'false');
+        } else {
+            panelAccess.classList.add('hidden');
+            panelAccess.setAttribute('aria-hidden', 'true');
+        }
+    });
+}
+
+// 2. Función Tamaño Texto (Zoom)
+window.cambiarTexto = function(direction) {
+    zoomLevel += direction * 0.1;
+    // Límites para que no se rompa (entre 0.8x y 1.5x es razonable)
+    if (zoomLevel > 1.8) zoomLevel = 1.8;
+    if (zoomLevel < 0.8) zoomLevel = 0.8;
+    
+    // Aplicamos el zoom al body, afectando a toda la app
+    document.body.style.transform = `scale(${zoomLevel})`;
+    document.body.style.transformOrigin = "top center";
+    
+    // Ajuste para que el scroll no se rompa al hacer zoom
+    document.body.style.width = `${100/zoomLevel}%`;
+}
+
+// 3. Función Alto Contraste (ONCE Style)
+window.toggleContraste = function() {
+    document.body.classList.toggle('high-contrast');
+}
+
+// 4. Función Fuente Dislexia (Comic Sans / Verdana)
+window.toggleDislexia = function() {
+    document.body.classList.toggle('dyslexia-font');
+}
+
+// 5. Función Parar Animaciones (Stop Motion)
+window.toggleAnimaciones = function() {
+    document.body.classList.toggle('stop-animations');
+}
+
+// 6. Resetear todo a la normalidad
+window.resetAccesibilidad = function() {
+    zoomLevel = 1;
+    document.body.style.transform = '';
+    document.body.style.width = '';
+    document.body.classList.remove('high-contrast', 'dyslexia-font', 'stop-animations');
+}

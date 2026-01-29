@@ -136,6 +136,37 @@
         </div>
     </div>
 
+    <button id="btn-accesibilidad" aria-label="Abrir panel de accesibilidad" class="access-btn">
+      ♿
+    </button>
+    
+    <div id="panel-accesibilidad" class="access-panel hidden" aria-hidden="true">
+      <h3>Accesibilidad</h3>
+      
+      <div class="access-option">
+        <span>Tamaño Texto</span>
+        <button onclick="cambiarTexto(1)">A+</button>
+        <button onclick="cambiarTexto(-1)">A-</button>
+      </div>
+    
+      <div class="access-option">
+        <span>Contraste</span>
+        <button onclick="toggleContraste()">🌗</button>
+      </div>
+    
+      <div class="access-option">
+        <span>Dislexia</span>
+        <button onclick="toggleDislexia()">🧠</button>
+      </div>
+      
+      <div class="access-option">
+        <span>Animaciones</span>
+        <button onclick="toggleAnimaciones()">⏯️</button>
+      </div>
+    
+      <button onclick="resetAccesibilidad()" class="btn-reset">Restablecer</button>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/app.js"></script>
