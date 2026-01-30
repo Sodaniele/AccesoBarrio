@@ -493,3 +493,89 @@ div:where(.swal2-container) { z-index: 200000 !important; }
         border-bottom: 1px solid #eee;
     }
 }
+/* ======================================================= */
+/* 🖥️ DISEÑO RESPONSIVO (ESCRITORIO: MODO SIDE-BY-SIDE)    */
+/* ======================================================= */
+
+/* Esta regla solo se activa si la pantalla es mayor a 900px (PC/Tablet Horizontal) */
+@media (min-width: 900px) {
+
+    /* 1. CONTENEDOR PRINCIPAL */
+    #pantalla-resultados {
+        flex-direction: row !important; 
+        flex-wrap: wrap; 
+        overflow: hidden; 
+    }
+
+    /* 2. BARRA SUPERIOR */
+    .barra-superior-pro {
+        width: 100%;
+        height: 60px; 
+        order: 1; 
+        z-index: 20;
+        border-bottom: 1px solid #ddd;
+        box-sizing: border-box;
+    }
+
+    /* 3. COLUMNA IZQUIERDA (LISTA) - AHORA MÁS ESTRECHA */
+    #vista-lista {
+        display: block !important; 
+        width: 280px; /* 👈 ANTES 350px, AHORA 280px */
+        height: calc(100vh - 60px); 
+        order: 2; 
+        overflow-y: auto; 
+        border-right: 1px solid #ddd;
+        background: #fdfdfd;
+        z-index: 10;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.05); 
+    }
+
+    /* 4. MAPA (DERECHA) */
+    #contenedor-mapa-pro {
+        display: flex !important; 
+        flex: 1; /* Ocupa todo el espacio restante (ahora más amplio) */
+        height: calc(100vh - 60px); 
+        order: 3;
+        width: auto !important; 
+    }
+
+    /* 5. OCULTAR BOTÓN FLOTANTE */
+    #btn-vista {
+        display: none !important;
+    }
+
+    /* AJUSTES ESTÉTICOS PARA LA COLUMNA ESTRECHA */
+    .grid-ciudades {
+        /* 👈 CAMBIO: Una sola columna para que no se vea apretado */
+        grid-template-columns: 1fr; 
+        padding: 0 10px;
+    }
+    
+    .card-ciudad {
+        /* Hacemos las tarjetas un poco más compactas */
+        flex-direction: row; /* Icono al lado del texto */
+        padding: 10px;
+        text-align: left;
+        justify-content: flex-start;
+        gap: 15px;
+    }
+
+    .card-ciudad .icono-ciudad {
+        width: 40px; height: 40px; font-size: 20px; margin-bottom: 0;
+    }
+    
+    .item-lista {
+        margin: 10px; 
+        padding: 15px;
+        font-size: 0.9em; /* Texto un pelín más pequeño */
+    }
+    
+    .buscador-zona-wrapper {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #fdfdfd;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+}
