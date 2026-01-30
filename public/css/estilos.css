@@ -420,3 +420,76 @@ div:where(.swal2-container) { z-index: 200000 !important; }
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
+
+/* ======================================================= */
+/* 🖥️ DISEÑO RESPONSIVO (ESCRITORIO: MODO SIDE-BY-SIDE)    */
+/* ======================================================= */
+
+/* Esta regla solo se activa si la pantalla es mayor a 900px (PC/Tablet Horizontal) */
+@media (min-width: 900px) {
+
+    /* 1. CONTENEDOR PRINCIPAL: Organizamos en filas */
+    #pantalla-resultados {
+        flex-direction: row !important; /* Elementos lado a lado */
+        flex-wrap: wrap; /* Permite que la barra superior ocupe todo el ancho */
+        overflow: hidden; /* Evita que la página entera tenga scroll */
+    }
+
+    /* 2. BARRA SUPERIOR: Siempre arriba y ocupando todo el ancho */
+    .barra-superior-pro {
+        width: 100%;
+        height: 60px; /* Altura fija para calcular el resto */
+        order: 1; /* Va primero */
+        z-index: 20;
+        border-bottom: 1px solid #ddd;
+        box-sizing: border-box;
+    }
+
+    /* 3. COLUMNA IZQUIERDA (LISTA): Siempre visible y con scroll propio */
+    #vista-lista {
+        display: block !important; /* Forzamos que se vea SIEMPRE */
+        width: 350px; /* Ancho fijo para la lista */
+        height: calc(100vh - 60px); /* Altura total menos la barra superior */
+        order: 2; /* Va a la izquierda */
+        overflow-y: auto; /* Solo hace scroll esta columna */
+        border-right: 1px solid #ddd;
+        background: #fdfdfd;
+        z-index: 10;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.05); /* Sombra suave sobre el mapa */
+    }
+
+    /* 4. MAPA (DERECHA): Ocupa todo el espacio restante */
+    #contenedor-mapa-pro {
+        display: flex !important; /* Forzamos que se vea SIEMPRE */
+        flex: 1; /* Ocupa todo el espacio que sobre a la derecha */
+        height: calc(100vh - 60px); /* Altura total menos barra superior */
+        order: 3;
+        width: auto !important; /* Reseteamos anchos */
+    }
+
+    /* 5. BOTÓN "VER LISTA": Lo ocultamos porque ya no hace falta */
+    #btn-vista {
+        display: none !important;
+    }
+
+    /* AJUSTES ESTÉTICOS PARA LA COLUMNA LATERAL */
+    .grid-ciudades {
+        /* En la columna, las carpetas se ponen de 2 en 2 */
+        grid-template-columns: 1fr 1fr; 
+    }
+    
+    .item-lista {
+        margin: 10px; /* Reducimos márgenes para que quede elegante */
+        padding: 15px;
+    }
+    
+    /* Buscador de zona dentro de la lista */
+    .buscador-zona-wrapper {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #fdfdfd;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+}
